@@ -71,6 +71,14 @@ function bootstrap() {
                         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
                         preflightContinue: false,
                         optionsSuccessStatus: 204,
+                        allowedHeaders: [
+                            'Origin',
+                            'X-Requested-With',
+                            'Content-Type',
+                            'Accept',
+                            'Authorization',
+                            'Cookie',
+                        ],
                         credentials: true
                     });
                     PORT = configService.get('PORT');

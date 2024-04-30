@@ -76,7 +76,14 @@ function bootstrap() {
                         origin: 'https://glints-app-frontend.vercel.app',
                         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
                         credentials: true,
-                        allowedHeaders: '*'
+                        allowedHeaders: [
+                            'Origin',
+                            'X-Requested-With',
+                            'Content-Type',
+                            'Accept',
+                            'Authorization',
+                            'Cookie',
+                        ]
                     });
                     PORT = configService.get('PORT');
                     return [4 /*yield*/, app.listen(PORT)];

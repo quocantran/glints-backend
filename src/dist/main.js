@@ -67,7 +67,7 @@ function bootstrap() {
                     });
                     app.use(helmet_1["default"]());
                     app.enableCors({
-                        origin: 'https://glints-app-frontend.vercel.app',
+                        origin: 'http://localhost:3000',
                         credentials: true
                     });
                     PORT = configService.get('PORT');

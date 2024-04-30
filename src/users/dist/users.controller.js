@@ -47,6 +47,7 @@ var UsersController = /** @class */ (function () {
         __param(0, common_1.Body())
     ], UsersController.prototype, "create");
     __decorate([
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
         common_1.Get(),
         __param(0, common_1.Query())
     ], UsersController.prototype, "findAll");

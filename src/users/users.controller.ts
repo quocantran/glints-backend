@@ -27,6 +27,7 @@ export class UsersController {
     return this.usersService.create(registerUserDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(@Query() qs: string) {
     return this.usersService.findAll(qs);

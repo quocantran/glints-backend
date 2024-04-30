@@ -69,16 +69,6 @@ function bootstrap() {
                     app.enableCors({
                         origin: 'https://glints-app-frontend.vercel.app',
                         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-                        preflightContinue: false,
-                        optionsSuccessStatus: 204,
-                        allowedHeaders: [
-                            'Origin',
-                            'X-Requested-With',
-                            'Content-Type',
-                            'Accept',
-                            'Authorization',
-                            'Cookie',
-                        ],
                         credentials: true
                     });
                     PORT = configService.get('PORT');

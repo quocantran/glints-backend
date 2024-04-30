@@ -29,17 +29,7 @@ async function bootstrap() {
     app.use((0, helmet_1.default)());
     app.enableCors({
         origin: 'https://glints-app-frontend.vercel.app',
-        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-        preflightContinue: false,
-        optionsSuccessStatus: 204,
-        allowedHeaders: [
-            'Origin',
-            'X-Requested-With',
-            'Content-Type',
-            'Accept',
-            'Authorization',
-            'Cookie',
-        ],
+        methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
         credentials: true,
     });
     const PORT = configService.get('PORT');

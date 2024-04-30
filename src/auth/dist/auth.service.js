@@ -125,7 +125,9 @@ var AuthService = /** @class */ (function () {
                         data = (_b.sent());
                         res.cookie('refresh_token', newRefreshToken, {
                             httpOnly: true,
-                            maxAge: ms_1["default"](this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000
+                            maxAge: ms_1["default"](this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000,
+                            sameSite: 'none',
+                            secure: true
                         });
                         return [2 /*return*/, {
                                 access_token: this.jwtService.sign(newPayload),
@@ -210,7 +212,9 @@ var AuthService = /** @class */ (function () {
                         _a.sent();
                         res.cookie('refresh_token', refreshToken, {
                             httpOnly: true,
-                            maxAge: ms_1["default"](this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000
+                            maxAge: ms_1["default"](this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000,
+                            sameSite: 'none',
+                            secure: true
                         });
                         return [2 /*return*/, {
                                 access_token: this.jwtService.sign(payload),

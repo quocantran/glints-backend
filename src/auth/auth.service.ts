@@ -75,6 +75,8 @@ export class AuthService {
       httpOnly: true,
       maxAge:
         ms(this.configService.get<string>('JWT_REFRESH_EXPIRES_IN')) * 1000,
+      sameSite: 'none',
+      secure: true,
     });
     return {
       access_token: this.jwtService.sign(payload),
@@ -158,6 +160,8 @@ export class AuthService {
           httpOnly: true,
           maxAge:
             ms(this.configService.get<string>('JWT_REFRESH_EXPIRES_IN')) * 1000,
+          sameSite: 'none',
+          secure: true,
         });
 
         return {

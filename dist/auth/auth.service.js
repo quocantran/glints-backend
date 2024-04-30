@@ -77,6 +77,8 @@ let AuthService = class AuthService {
                     res.cookie('refresh_token', newRefreshToken, {
                         httpOnly: true,
                         maxAge: (0, ms_1.default)(this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000,
+                        sameSite: 'none',
+                        secure: true,
                     });
                     return {
                         access_token: this.jwtService.sign(newPayload),
@@ -138,6 +140,8 @@ let AuthService = class AuthService {
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
             maxAge: (0, ms_1.default)(this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000,
+            sameSite: 'none',
+            secure: true,
         });
         return {
             access_token: this.jwtService.sign(payload),

@@ -13,7 +13,7 @@ const serve_static_1 = __importDefault(require("serve-static"));
 const path_1 = require("path");
 const helmet_1 = __importDefault(require("helmet"));
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, { cors: true });
     const configService = app.get(config_1.ConfigService);
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,

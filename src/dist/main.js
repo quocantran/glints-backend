@@ -50,7 +50,7 @@ function bootstrap() {
         var app, configService, PORT;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, core_1.NestFactory.create(app_module_1.AppModule)];
+                case 0: return [4 /*yield*/, core_1.NestFactory.create(app_module_1.AppModule, { cors: true })];
                 case 1:
                     app = _a.sent();
                     configService = app.get(config_1.ConfigService);

@@ -28,7 +28,7 @@ async function bootstrap() {
     });
     app.use((0, helmet_1.default)());
     app.enableCors({
-        origin: true,
+        origin: 'https://glints-app-frontend.vercel.app',
         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
         preflightContinue: false,
         optionsSuccessStatus: 204,

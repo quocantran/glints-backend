@@ -11,9 +11,8 @@ const transform_interceptor_1 = require("./core/transform.interceptor");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const serve_static_1 = __importDefault(require("serve-static"));
 const path_1 = require("path");
-const helmet_1 = __importDefault(require("helmet"));
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule, { cors: true });
+    const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const configService = app.get(config_1.ConfigService);
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,
@@ -26,19 +25,9 @@ async function bootstrap() {
         type: common_1.VersioningType.URI,
         defaultVersion: ['1', '2'],
     });
-    app.use((0, helmet_1.default)());
     app.enableCors({
-        origin: ['https://glints-app-frontend.vercel.app', 'http://localhost:3000'],
-        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+        origin: 'http://localhost:3000',
         credentials: true,
-        allowedHeaders: [
-            'Origin',
-            'X-Requested-With',
-            'Content-Type',
-            'Accept',
-            'Authorization',
-            'Cookie',
-        ],
     });
     const PORT = configService.get('PORT');
     await app.listen(PORT);

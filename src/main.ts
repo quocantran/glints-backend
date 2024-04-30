@@ -10,7 +10,7 @@ import { join } from 'path';
 import helmet from 'helmet';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { cors: true });
+  const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
   app.useGlobalPipes(
@@ -32,17 +32,8 @@ async function bootstrap() {
   app.use(helmet());
 
   app.enableCors({
-    origin: ['https://glints-app-frontend.vercel.app', 'http://localhost:3000'],
-    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
+    origin: 'http://localhost:3000',
     credentials: true,
-    allowedHeaders: [
-      'Origin',
-      'X-Requested-With',
-      'Content-Type',
-      'Accept',
-      'Authorization',
-      'Cookie',
-    ],
   });
   const PORT = configService.get<string>('PORT');
   await app.listen(PORT);

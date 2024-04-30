@@ -50,7 +50,7 @@ function bootstrap() {
         var app, configService, PORT;
         return __generator(this, function (_a) {
             switch (_a.label) {
-                case 0: return [4 /*yield*/, core_1.NestFactory.create(app_module_1.AppModule, { cors: true })];
+                case 0: return [4 /*yield*/, core_1.NestFactory.create(app_module_1.AppModule)];
                 case 1:
                     app = _a.sent();
                     configService = app.get(config_1.ConfigService);
@@ -67,17 +67,8 @@ function bootstrap() {
                     });
                     app.use(helmet_1["default"]());
                     app.enableCors({
-                        origin: ['https://glints-app-frontend.vercel.app', 'http://localhost:3000'],
-                        methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
-                        credentials: true,
-                        allowedHeaders: [
-                            'Origin',
-                            'X-Requested-With',
-                            'Content-Type',
-                            'Accept',
-                            'Authorization',
-                            'Cookie',
-                        ]
+                        origin: 'http://localhost:3000',
+                        credentials: true
                     });
                     PORT = configService.get('PORT');
                     return [4 /*yield*/, app.listen(PORT)];

@@ -66,10 +66,17 @@ function bootstrap() {
                         defaultVersion: ['1', '2']
                     });
                     app.use(helmet_1["default"]());
+                    app.use(function (req, res, next) {
+                        res.header('Access-Control-Allow-Origin', '*');
+                        res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE');
+                        res.header('Access-Control-Allow-Headers', 'Content-Type, Accept');
+                        next();
+                    });
                     app.enableCors({
                         origin: 'https://glints-app-frontend.vercel.app',
                         methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-                        credentials: true
+                        credentials: true,
+                        allowedHeaders: '*'
                     });
                     PORT = configService.get('PORT');
                     return [4 /*yield*/, app.listen(PORT)];

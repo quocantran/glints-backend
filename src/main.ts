@@ -32,7 +32,7 @@ async function bootstrap() {
   app.use(helmet());
 
   app.enableCors({
-    origin: 'https://glints-app-frontend.vercel.app',
+    origin: ['https://glints-app-frontend.vercel.app', 'http://localhost:3000'],
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
     credentials: true,
     allowedHeaders: [

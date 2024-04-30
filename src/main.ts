@@ -33,7 +33,7 @@ async function bootstrap() {
 
   app.enableCors({
     origin: 'https://glints-app-frontend.vercel.app',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     preflightContinue: false,
     optionsSuccessStatus: 204,
     allowedHeaders: [

@@ -155,7 +155,9 @@ let UsersService = class UsersService {
         return result;
     }
     async findUserByUsername(username) {
-        return this.userModel.findOne({ email: username }).populate({
+        return this.userModel
+            .findOne({ email: username, isDeleted: 'false' })
+            .populate({
             path: 'role',
             select: {
                 name: 1,

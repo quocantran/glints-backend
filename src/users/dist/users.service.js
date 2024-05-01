@@ -224,7 +224,9 @@ var UsersService = /** @class */ (function () {
     UsersService.prototype.findUserByUsername = function (username) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, this.userModel.findOne({ email: username }).populate({
+                return [2 /*return*/, this.userModel
+                        .findOne({ email: username, isDeleted: 'false' })
+                        .populate({
                         path: 'role',
                         select: {
                             name: 1,

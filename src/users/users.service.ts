@@ -110,13 +110,15 @@ export class UsersService {
   }
 
   async findUserByUsername(username: string) {
-    return this.userModel.findOne({ email: username }).populate({
-      path: 'role',
-      select: {
-        name: 1,
-        _id: 1,
-      },
-    });
+    return this.userModel
+      .findOne({ email: username, isDeleted: 'false' })
+      .populate({
+        path: 'role',
+        select: {
+          name: 1,
+          _id: 1,
+        },
+      });
   }
 
   async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {

@@ -32,7 +32,7 @@ async function bootstrap() {
   app.use(helmet());
 
   app.enableCors({
-    origin: 'http://localhost:3000',
+    origin: ['https://glints-app-frontend.vercel.app', 'http://localhost:3000'],
     credentials: true,
   });
   const PORT = configService.get<string>('PORT');

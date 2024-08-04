@@ -58,11 +58,11 @@ var resumes_module_1 = require("./resumes/resumes.module");
 var permissions_module_1 = require("./permissions/permissions.module");
 var roles_module_1 = require("./roles/roles.module");
 var throttler_1 = require("@nestjs/throttler");
-var forgot_password_module_1 = require("./forgot-password/forgot-password.module");
 var mail_module_1 = require("./mail/mail.module");
 var subscribers_module_1 = require("./subscribers/subscribers.module");
 var skills_module_1 = require("./skills/skills.module");
 var schedule_1 = require("@nestjs/schedule");
+var otps_module_1 = require("./otps/otps.module");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -103,10 +103,11 @@ var AppModule = /** @class */ (function () {
                 resumes_module_1.ResumesModule,
                 permissions_module_1.PermissionsModule,
                 roles_module_1.RolesModule,
-                forgot_password_module_1.ForgotPasswordModule,
                 mail_module_1.MailModule,
+                otps_module_1.OtpsModule,
                 subscribers_module_1.SubscribersModule,
                 skills_module_1.SkillsModule,
+                otps_module_1.OtpsModule,
             ],
             controllers: [app_controller_1.AppController],
             providers: [app_service_1.AppService],

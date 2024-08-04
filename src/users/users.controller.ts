@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Res,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
@@ -16,10 +17,11 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUser } from './users.interface';
 import { User } from 'src/decorator/customize';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { Response } from 'express';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @UseGuards(JwtAuthGuard)
   @Post()
@@ -62,9 +64,12 @@ export class UsersController {
     return this.usersService.updatePassword(id, updateUserDto);
   }
 
-  @Post('/password/forgot')
-  forgotPassword(@Body() forgotPasswordDto: ForgotPasswordDto) {
-    return this.usersService.forgotPassword(forgotPasswordDto);
+  @Get('/password/forgot-password')
+  async forgotPassword(@Query('token') token: string, @Res() res: Response) {
+    const result = await this.usersService.forgotPassword(token);
+    if (result) {
+      res.send("Mật khẩu mới đã được gửi về email của bạn!");
+    }
   }
 
   @Get('/record/count')

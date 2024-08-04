@@ -27,7 +27,7 @@ import { UsersService } from './users.service';
 import { RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto, UpdateUserPasswordDto } from './dto/update-user.dto';
 import { IUser } from './users.interface';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { Response } from 'express';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
@@ -85,7 +85,7 @@ export declare class UsersController {
                 _id: import("mongoose").Types.ObjectId;
             }, any>>(): ModelType_1;
         };
-        $op: "save" | "validate" | "remove";
+        $op: "remove" | "validate" | "save";
         $session: (session?: import("mongodb").ClientSession) => import("mongodb").ClientSession;
         $set: {
             (path: string | Record<string, any>, val: any, type: any, options?: import("mongoose").DocumentSetOptions): import("mongoose").Document<unknown, {}, import("./schemas/user.schema").User> & import("./schemas/user.schema").User & {
@@ -335,12 +335,6 @@ export declare class UsersController {
         deleted: number;
     }>;
     updatePassword(id: string, updateUserDto: UpdateUserPasswordDto): Promise<import("mongoose").UpdateWriteOpResult>;
-    forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("../forgot-password/schemas/forgot-password.schema").ForgotPassword> & import("../forgot-password/schemas/forgot-password.schema").ForgotPassword & {
-        _id: import("mongoose").Types.ObjectId;
-    }> & import("mongoose").Document<unknown, {}, import("../forgot-password/schemas/forgot-password.schema").ForgotPassword> & import("../forgot-password/schemas/forgot-password.schema").ForgotPassword & {
-        _id: import("mongoose").Types.ObjectId;
-    } & Required<{
-        _id: import("mongoose").Types.ObjectId;
-    }>>;
+    forgotPassword(token: string, res: Response): Promise<void>;
     countUser(): Promise<number>;
 }

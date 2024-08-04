@@ -13,14 +13,16 @@ const users_service_1 = require("./users.service");
 const users_controller_1 = require("./users.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const user_schema_1 = require("./schemas/user.schema");
-const forgot_password_module_1 = require("../forgot-password/forgot-password.module");
+const otps_module_1 = require("../otps/otps.module");
+const mail_module_1 = require("../mail/mail.module");
 let UsersModule = UsersModule_1 = class UsersModule {
 };
 UsersModule = UsersModule_1 = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }]),
-            forgot_password_module_1.ForgotPasswordModule,
+            (0, common_1.forwardRef)(() => otps_module_1.OtpsModule),
+            mail_module_1.MailModule
         ],
         controllers: [users_controller_1.UsersController],
         providers: [users_service_1.UsersService],

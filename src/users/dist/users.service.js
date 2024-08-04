@@ -74,11 +74,13 @@ var user_schema_1 = require("./schemas/user.schema");
 var bcrypt = require("bcryptjs");
 var mongoose_2 = require("mongoose");
 var api_query_params_1 = require("api-query-params");
+var otps_service_1 = require("src/otps/otps.service");
 var UsersService = /** @class */ (function () {
-    function UsersService(userModel, forgotPasswwordService) {
+    function UsersService(userModel, otpService, mailService) {
         var _this = this;
         this.userModel = userModel;
-        this.forgotPasswwordService = forgotPasswwordService;
+        this.otpService = otpService;
+        this.mailService = mailService;
         this.hashPassword = function (password) {
             var salt = bcrypt.genSaltSync(10);
             var hash = bcrypt.hashSync(password, salt);
@@ -262,28 +264,35 @@ var UsersService = /** @class */ (function () {
             });
         });
     };
-    UsersService.prototype.forgotPassword = function (forgotPasswordDto) {
+    UsersService.prototype.forgotPassword = function (token) {
         return __awaiter(this, void 0, void 0, function () {
-            var user, otp, TIME_EXPIRED, objectForgot;
+            var user, existUser, newPassword, passwordHash;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.userModel.findOne({
-                            email: forgotPasswordDto.email
-                        })];
+                    case 0: return [4 /*yield*/, this.otpService.checkToken(token)];
                     case 1:
                         user = _a.sent();
                         if (!user) {
-                            throw new common_1.NotFoundException('Email not found');
+                            throw new common_1.BadRequestException('Token not found!');
                         }
-                        otp = this.generateOtp(6);
-                        TIME_EXPIRED = 3 * 60;
-                        objectForgot = {
-                            email: forgotPasswordDto.email,
-                            otp: otp,
-                            expiredAt: new Date(Date.now() + TIME_EXPIRED)
-                        };
-                        return [4 /*yield*/, this.forgotPasswwordService.create(objectForgot)];
-                    case 2: return [2 /*return*/, _a.sent()];
+                        return [4 /*yield*/, this.findUserByUsername(user.email)];
+                    case 2:
+                        existUser = _a.sent();
+                        if (!existUser) {
+                            throw new common_1.BadRequestException('User not found!');
+                        }
+                        newPassword = this.generateOtp(8);
+                        passwordHash = this.hashPassword(newPassword);
+                        return [4 /*yield*/, this.userModel.updateOne({ email: user.email }, { password: passwordHash })];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, this.mailService.sendPasswordResetMail(user.email, newPassword)];
+                    case 4:
+                        _a.sent();
+                        return [4 /*yield*/, this.otpService.remove(token)];
+                    case 5:
+                        _a.sent();
+                        return [2 /*return*/, true];
                 }
             });
         });
@@ -300,7 +309,8 @@ var UsersService = /** @class */ (function () {
     };
     UsersService = __decorate([
         common_1.Injectable(),
-        __param(0, mongoose_1.InjectModel(user_schema_1.User.name))
+        __param(0, mongoose_1.InjectModel(user_schema_1.User.name)),
+        __param(1, common_1.Inject(common_1.forwardRef(function () { return otps_service_1.OtpsService; })))
     ], UsersService);
     return UsersService;
 }());

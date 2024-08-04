@@ -20,14 +20,15 @@ let MailService = class MailService {
         this.subscriberService = subscriberService;
         this.jobsService = jobsService;
     }
-    async sendMail(email, otp) {
+    async sendMail(email, token) {
+        const linkVerify = `http://localhost:8000/api/v1/users/password/forgot-password?token=${token}`;
         await this.mailerService.sendMail({
             to: email,
             from: 'Support Group*',
             subject: 'Mã OTP lấy lại mật khẩu',
             template: 'otp.template.hbs',
             context: {
-                otp: otp,
+                linkVerify: linkVerify,
             },
         });
         return 'Mail sent';
@@ -49,6 +50,18 @@ let MailService = class MailService {
             });
         }
         return "Mail sent";
+    }
+    async sendPasswordResetMail(email, password) {
+        await this.mailerService.sendMail({
+            to: email,
+            from: 'Support Group*',
+            subject: 'Mật khẩu mới',
+            template: 'reset-password.template.hbs',
+            context: {
+                password: password,
+            },
+        });
+        return 'Mail sent';
     }
 };
 MailService = __decorate([

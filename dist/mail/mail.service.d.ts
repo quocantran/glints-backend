@@ -6,6 +6,7 @@ export declare class MailService {
     private readonly subscriberService;
     private readonly jobsService;
     constructor(mailerService: MailerService, subscriberService: SubscribersService, jobsService: JobsService);
-    sendMail(email: string, otp: string): Promise<string>;
+    sendMail(email: string, token: string): Promise<string>;
     sendMailToSubscribers(): Promise<string>;
+    sendPasswordResetMail(email: string, password: string): Promise<string>;
 }

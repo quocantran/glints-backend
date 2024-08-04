@@ -22,11 +22,11 @@ const resumes_module_1 = require("./resumes/resumes.module");
 const permissions_module_1 = require("./permissions/permissions.module");
 const roles_module_1 = require("./roles/roles.module");
 const throttler_1 = require("@nestjs/throttler");
-const forgot_password_module_1 = require("./forgot-password/forgot-password.module");
 const mail_module_1 = require("./mail/mail.module");
 const subscribers_module_1 = require("./subscribers/subscribers.module");
 const skills_module_1 = require("./skills/skills.module");
 const schedule_1 = require("@nestjs/schedule");
+const otps_module_1 = require("./otps/otps.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -61,10 +61,11 @@ AppModule = __decorate([
             resumes_module_1.ResumesModule,
             permissions_module_1.PermissionsModule,
             roles_module_1.RolesModule,
-            forgot_password_module_1.ForgotPasswordModule,
             mail_module_1.MailModule,
+            otps_module_1.OtpsModule,
             subscribers_module_1.SubscribersModule,
             skills_module_1.SkillsModule,
+            otps_module_1.OtpsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

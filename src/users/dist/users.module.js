@@ -12,7 +12,8 @@ var users_service_1 = require("./users.service");
 var users_controller_1 = require("./users.controller");
 var mongoose_1 = require("@nestjs/mongoose");
 var user_schema_1 = require("./schemas/user.schema");
-var forgot_password_module_1 = require("src/forgot-password/forgot-password.module");
+var otps_module_1 = require("src/otps/otps.module");
+var mail_module_1 = require("src/mail/mail.module");
 var UsersModule = /** @class */ (function () {
     function UsersModule() {
     }
@@ -22,7 +23,8 @@ var UsersModule = /** @class */ (function () {
         common_1.Module({
             imports: [
                 mongoose_1.MongooseModule.forFeature([{ name: user_schema_1.User.name, schema: user_schema_1.UserSchema }]),
-                forgot_password_module_1.ForgotPasswordModule,
+                common_1.forwardRef(function () { return otps_module_1.OtpsModule; }),
+                mail_module_1.MailModule
             ],
             controllers: [users_controller_1.UsersController],
             providers: [users_service_1.UsersService],

@@ -50,19 +50,22 @@ var MailService = /** @class */ (function () {
         this.subscriberService = subscriberService;
         this.jobsService = jobsService;
     }
-    MailService.prototype.sendMail = function (email, otp) {
+    MailService.prototype.sendMail = function (email, token) {
         return __awaiter(this, void 0, void 0, function () {
+            var linkVerify;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.mailerService.sendMail({
-                            to: email,
-                            from: 'Support Group*',
-                            subject: 'Mã OTP lấy lại mật khẩu',
-                            template: 'otp.template.hbs',
-                            context: {
-                                otp: otp
-                            }
-                        })];
+                    case 0:
+                        linkVerify = "http://localhost:8000/api/v1/users/password/forgot-password?token=" + token;
+                        return [4 /*yield*/, this.mailerService.sendMail({
+                                to: email,
+                                from: 'Support Group*',
+                                subject: 'Mã OTP lấy lại mật khẩu',
+                                template: 'otp.template.hbs',
+                                context: {
+                                    linkVerify: linkVerify
+                                }
+                            })];
                     case 1:
                         _a.sent();
                         return [2 /*return*/, 'Mail sent'];
@@ -104,6 +107,26 @@ var MailService = /** @class */ (function () {
                         _i++;
                         return [3 /*break*/, 2];
                     case 6: return [2 /*return*/, "Mail sent"];
+                }
+            });
+        });
+    };
+    MailService.prototype.sendPasswordResetMail = function (email, password) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.mailerService.sendMail({
+                            to: email,
+                            from: 'Support Group*',
+                            subject: 'Mật khẩu mới',
+                            template: 'reset-password.template.hbs',
+                            context: {
+                                password: password
+                            }
+                        })];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, 'Mail sent'];
                 }
             });
         });

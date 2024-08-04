@@ -7,14 +7,17 @@ import { SubscribersService } from 'src/subscribers/subscribers.service';
 export class MailService {
   constructor(private mailerService: MailerService, private readonly subscriberService: SubscribersService, private readonly jobsService: JobsService) { }
 
-  async sendMail(email: string, otp: string) {
+  async sendMail(email: string, token: string) {
+
+    const linkVerify = `http://localhost:8000/api/v1/users/password/forgot-password?token=${token}`;
+
     await this.mailerService.sendMail({
       to: email,
       from: 'Support Group*',
       subject: 'Mã OTP lấy lại mật khẩu',
       template: 'otp.template.hbs',
       context: {
-        otp: otp,
+        linkVerify: linkVerify,
       },
     });
 
@@ -40,5 +43,18 @@ export class MailService {
     }
 
     return "Mail sent";
+  }
+  async sendPasswordResetMail(email: string, password: string) {
+    await this.mailerService.sendMail({
+      to: email,
+      from: 'Support Group*',
+      subject: 'Mật khẩu mới',
+      template: 'reset-password.template.hbs',
+      context: {
+        password: password,
+      },
+    });
+
+    return 'Mail sent';
   }
 }

@@ -19,7 +19,6 @@ const create_user_dto_1 = require("./dto/create-user.dto");
 const update_user_dto_1 = require("./dto/update-user.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const customize_1 = require("../decorator/customize");
-const forgot_password_dto_1 = require("./dto/forgot-password.dto");
 let UsersController = class UsersController {
     constructor(usersService) {
         this.usersService = usersService;
@@ -42,8 +41,11 @@ let UsersController = class UsersController {
     updatePassword(id, updateUserDto) {
         return this.usersService.updatePassword(id, updateUserDto);
     }
-    forgotPassword(forgotPasswordDto) {
-        return this.usersService.forgotPassword(forgotPasswordDto);
+    async forgotPassword(token, res) {
+        const result = await this.usersService.forgotPassword(token);
+        if (result) {
+            res.send("Mật khẩu mới đã được gửi về email của bạn!");
+        }
     }
     countUser() {
         return this.usersService.countUser();
@@ -100,11 +102,12 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], UsersController.prototype, "updatePassword", null);
 __decorate([
-    (0, common_1.Post)('/password/forgot'),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.Get)('/password/forgot-password'),
+    __param(0, (0, common_1.Query)('token')),
+    __param(1, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [forgot_password_dto_1.ForgotPasswordDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
 ], UsersController.prototype, "forgotPassword", null);
 __decorate([
     (0, common_1.Get)('/record/count'),

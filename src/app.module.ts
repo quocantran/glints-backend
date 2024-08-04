@@ -13,11 +13,11 @@ import { ResumesModule } from './resumes/resumes.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 import { ThrottlerModule } from '@nestjs/throttler';
-import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
 import { MailModule } from './mail/mail.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { SkillsModule } from './skills/skills.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { OtpsModule } from './otps/otps.module';
 @Module({
   imports: [
     UsersModule,
@@ -53,10 +53,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     ResumesModule,
     PermissionsModule,
     RolesModule,
-    ForgotPasswordModule,
     MailModule,
+    OtpsModule,
     SubscribersModule,
     SkillsModule,
+    OtpsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

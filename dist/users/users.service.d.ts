@@ -4,13 +4,13 @@ import { User, UserDocument } from './schemas/user.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import mongoose from 'mongoose';
 import { IUser } from './users.interface';
-import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ForgotPassword } from 'src/forgot-password/schemas/forgot-password.schema';
-import { ForgotPasswordService } from 'src/forgot-password/forgot-password.service';
+import { OtpsService } from 'src/otps/otps.service';
+import { MailService } from 'src/mail/mail.service';
 export declare class UsersService {
     private userModel;
-    private forgotPasswwordService;
-    constructor(userModel: SoftDeleteModel<UserDocument>, forgotPasswwordService: ForgotPasswordService);
+    private readonly otpService;
+    private readonly mailService;
+    constructor(userModel: SoftDeleteModel<UserDocument>, otpService: OtpsService, mailService: MailService);
     hashPassword: (password: string) => string;
     checkPassword: (password: string, hash: string) => boolean;
     generateOtp: (length: number) => string;
@@ -68,7 +68,7 @@ export declare class UsersService {
                 _id: mongoose.Types.ObjectId;
             }, any>>(): ModelType_1;
         };
-        $op: "save" | "validate" | "remove";
+        $op: "remove" | "validate" | "save";
         $session: (session?: mongoose.mongo.ClientSession) => mongoose.mongo.ClientSession;
         $set: {
             (path: string | Record<string, any>, val: any, type: any, options?: mongoose.DocumentSetOptions): mongoose.Document<unknown, {}, User> & User & {
@@ -326,12 +326,6 @@ export declare class UsersService {
     }>;
     updateUserToken: (refreshToken: string, _id: string) => Promise<void>;
     updatePassword: (id: string, updateUserDto: UpdateUserPasswordDto) => Promise<mongoose.UpdateWriteOpResult>;
-    forgotPassword(forgotPasswordDto: ForgotPasswordDto): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, ForgotPassword> & ForgotPassword & {
-        _id: mongoose.Types.ObjectId;
-    }> & mongoose.Document<unknown, {}, ForgotPassword> & ForgotPassword & {
-        _id: mongoose.Types.ObjectId;
-    } & Required<{
-        _id: mongoose.Types.ObjectId;
-    }>>;
+    forgotPassword(token: string): Promise<boolean>;
     countUser(): Promise<number>;
 }

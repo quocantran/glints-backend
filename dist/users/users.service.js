@@ -56,11 +56,13 @@ const user_schema_1 = require("./schemas/user.schema");
 const bcrypt = __importStar(require("bcryptjs"));
 const mongoose_2 = __importDefault(require("mongoose"));
 const api_query_params_1 = __importDefault(require("api-query-params"));
-const forgot_password_service_1 = require("../forgot-password/forgot-password.service");
+const otps_service_1 = require("../otps/otps.service");
+const mail_service_1 = require("../mail/mail.service");
 let UsersService = class UsersService {
-    constructor(userModel, forgotPasswwordService) {
+    constructor(userModel, otpService, mailService) {
         this.userModel = userModel;
-        this.forgotPasswwordService = forgotPasswwordService;
+        this.otpService = otpService;
+        this.mailService = mailService;
         this.hashPassword = (password) => {
             const salt = bcrypt.genSaltSync(10);
             const hash = bcrypt.hashSync(password, salt);
@@ -177,21 +179,21 @@ let UsersService = class UsersService {
     async remove(id) {
         return await this.userModel.softDelete({ _id: id });
     }
-    async forgotPassword(forgotPasswordDto) {
-        const user = await this.userModel.findOne({
-            email: forgotPasswordDto.email,
-        });
+    async forgotPassword(token) {
+        const user = await this.otpService.checkToken(token);
         if (!user) {
-            throw new common_1.NotFoundException('Email not found');
+            throw new common_1.BadRequestException('Token not found!');
         }
-        const otp = this.generateOtp(6);
-        const TIME_EXPIRED = 3 * 60;
-        const objectForgot = {
-            email: forgotPasswordDto.email,
-            otp,
-            expiredAt: new Date(Date.now() + TIME_EXPIRED),
-        };
-        return await this.forgotPasswwordService.create(objectForgot);
+        const existUser = await this.findUserByUsername(user.email);
+        if (!existUser) {
+            throw new common_1.BadRequestException('User not found!');
+        }
+        const newPassword = this.generateOtp(8);
+        const passwordHash = this.hashPassword(newPassword);
+        await this.userModel.updateOne({ email: user.email }, { password: passwordHash });
+        await this.mailService.sendPasswordResetMail(user.email, newPassword);
+        await this.otpService.remove(token);
+        return true;
     }
     async countUser() {
         return await this.userModel.countDocuments();
@@ -200,7 +202,9 @@ let UsersService = class UsersService {
 UsersService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(user_schema_1.User.name)),
-    __metadata("design:paramtypes", [Object, forgot_password_service_1.ForgotPasswordService])
+    __param(1, (0, common_1.Inject)((0, common_1.forwardRef)(() => otps_service_1.OtpsService))),
+    __metadata("design:paramtypes", [Object, otps_service_1.OtpsService,
+        mail_service_1.MailService])
 ], UsersService);
 exports.UsersService = UsersService;
 //# sourceMappingURL=users.service.js.map

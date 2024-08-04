@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  forwardRef,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -14,22 +16,18 @@ import mongoose from 'mongoose';
 import aqp from 'api-query-params';
 import { IUser } from './users.interface';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ForgotPasswordModule } from 'src/forgot-password/forgot-password.module';
-import {
-  ForgotPassword,
-  ForgotPasswordDocument,
-} from 'src/forgot-password/schemas/forgot-password.schema';
-import { ForgotPasswordService } from 'src/forgot-password/forgot-password.service';
-import exp from 'constants';
-import { CreateForgotPasswordDto } from 'src/forgot-password/dto/create-forgot-password.dto';
+import { OtpsService } from 'src/otps/otps.service';
+import { MailService } from 'src/mail/mail.service';
+
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
+    @Inject(forwardRef(() => OtpsService)) private readonly otpService: OtpsService,
+    private readonly mailService: MailService
 
-    private forgotPasswwordService: ForgotPasswordService,
-  ) {}
+  ) { }
 
   hashPassword = (password: string) => {
     const salt = bcrypt.genSaltSync(10);
@@ -173,23 +171,26 @@ export class UsersService {
     );
   };
 
-  async forgotPassword(forgotPasswordDto: ForgotPasswordDto) {
-    const user = await this.userModel.findOne({
-      email: forgotPasswordDto.email,
-    });
+  async forgotPassword(token: string) {
+
+    const user = await this.otpService.checkToken(token);
+
     if (!user) {
-      throw new NotFoundException('Email not found');
+      throw new BadRequestException('Token not found!');
     }
 
-    const otp: string = this.generateOtp(6);
-    const TIME_EXPIRED = 3 * 60;
-    const objectForgot: CreateForgotPasswordDto = {
-      email: forgotPasswordDto.email,
-      otp,
-      expiredAt: new Date(Date.now() + TIME_EXPIRED),
-    };
+    const existUser = await this.findUserByUsername(user.email);
+    if (!existUser) {
+      throw new BadRequestException('User not found!');
+    }
 
-    return await this.forgotPasswwordService.create(objectForgot);
+    const newPassword = this.generateOtp(8);
+
+    const passwordHash = this.hashPassword(newPassword);
+    await this.userModel.updateOne({ email: user.email }, { password: passwordHash });
+    await this.mailService.sendPasswordResetMail(user.email, newPassword);
+    await this.otpService.remove(token);
+    return true;
   }
 
   async countUser() {

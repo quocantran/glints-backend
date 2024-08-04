@@ -58,6 +58,11 @@ var resumes_module_1 = require("./resumes/resumes.module");
 var permissions_module_1 = require("./permissions/permissions.module");
 var roles_module_1 = require("./roles/roles.module");
 var throttler_1 = require("@nestjs/throttler");
+var forgot_password_module_1 = require("./forgot-password/forgot-password.module");
+var mail_module_1 = require("./mail/mail.module");
+var subscribers_module_1 = require("./subscribers/subscribers.module");
+var skills_module_1 = require("./skills/skills.module");
+var schedule_1 = require("@nestjs/schedule");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -65,6 +70,7 @@ var AppModule = /** @class */ (function () {
         common_1.Module({
             imports: [
                 users_module_1.UsersModule,
+                schedule_1.ScheduleModule.forRoot(),
                 mongoose_1.MongooseModule.forRootAsync({
                     imports: [config_1.ConfigModule.forRoot()],
                     useFactory: function (configService) { return __awaiter(void 0, void 0, void 0, function () {
@@ -97,6 +103,10 @@ var AppModule = /** @class */ (function () {
                 resumes_module_1.ResumesModule,
                 permissions_module_1.PermissionsModule,
                 roles_module_1.RolesModule,
+                forgot_password_module_1.ForgotPasswordModule,
+                mail_module_1.MailModule,
+                subscribers_module_1.SubscribersModule,
+                skills_module_1.SkillsModule,
             ],
             controllers: [app_controller_1.AppController],
             providers: [app_service_1.AppService],

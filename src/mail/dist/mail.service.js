@@ -45,8 +45,10 @@ exports.__esModule = true;
 exports.MailService = void 0;
 var common_1 = require("@nestjs/common");
 var MailService = /** @class */ (function () {
-    function MailService(mailerService) {
+    function MailService(mailerService, subscriberService, jobsService) {
         this.mailerService = mailerService;
+        this.subscriberService = subscriberService;
+        this.jobsService = jobsService;
     }
     MailService.prototype.sendMail = function (email, otp) {
         return __awaiter(this, void 0, void 0, function () {
@@ -64,6 +66,44 @@ var MailService = /** @class */ (function () {
                     case 1:
                         _a.sent();
                         return [2 /*return*/, 'Mail sent'];
+                }
+            });
+        });
+    };
+    MailService.prototype.sendMailToSubscribers = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var subscribers, _i, subscribers_1, subscriber, skills, jobs;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.subscriberService.getAll()];
+                    case 1:
+                        subscribers = _a.sent();
+                        _i = 0, subscribers_1 = subscribers;
+                        _a.label = 2;
+                    case 2:
+                        if (!(_i < subscribers_1.length)) return [3 /*break*/, 6];
+                        subscriber = subscribers_1[_i];
+                        skills = subscriber.skills.map(function (skill) { return skill.name; });
+                        return [4 /*yield*/, this.jobsService.findJobsBySkillName(skills)];
+                    case 3:
+                        jobs = _a.sent();
+                        return [4 /*yield*/, this.mailerService.sendMail({
+                                to: subscriber.email,
+                                from: 'Support Group*',
+                                subject: 'Gợi ý công việc dành cho bạn',
+                                template: 'jobs.template.hbs',
+                                context: {
+                                    name: subscriber.email,
+                                    jobs: jobs
+                                }
+                            })];
+                    case 4:
+                        _a.sent();
+                        _a.label = 5;
+                    case 5:
+                        _i++;
+                        return [3 /*break*/, 2];
+                    case 6: return [2 /*return*/, "Mail sent"];
                 }
             });
         });

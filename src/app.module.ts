@@ -15,9 +15,13 @@ import { RolesModule } from './roles/roles.module';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ForgotPasswordModule } from './forgot-password/forgot-password.module';
 import { MailModule } from './mail/mail.module';
+import { SubscribersModule } from './subscribers/subscribers.module';
+import { SkillsModule } from './skills/skills.module';
+import { ScheduleModule } from '@nestjs/schedule';
 @Module({
   imports: [
     UsersModule,
+    ScheduleModule.forRoot(),
     MongooseModule.forRootAsync({
       imports: [ConfigModule.forRoot()],
       useFactory: async (configService: ConfigService) => ({
@@ -51,9 +55,11 @@ import { MailModule } from './mail/mail.module';
     RolesModule,
     ForgotPasswordModule,
     MailModule,
+    SubscribersModule,
+    SkillsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
   exports: [AppService],
 })
-export class AppModule {}
+export class AppModule { }

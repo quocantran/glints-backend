@@ -15,6 +15,8 @@ const mailer_1 = require("@nestjs-modules/mailer");
 const config_1 = require("@nestjs/config");
 const path_1 = require("path");
 const handlebars_adapter_1 = require("@nestjs-modules/mailer/dist/adapters/handlebars.adapter");
+const subscribers_module_1 = require("../subscribers/subscribers.module");
+const jobs_module_1 = require("../jobs/jobs.module");
 let MailModule = MailModule_1 = class MailModule {
 };
 MailModule = MailModule_1 = __decorate([
@@ -40,6 +42,8 @@ MailModule = MailModule_1 = __decorate([
                 }),
                 inject: [config_1.ConfigService],
             }),
+            subscribers_module_1.SubscribersModule,
+            jobs_module_1.JobsModule
         ],
         controllers: [mail_controller_1.MailController],
         providers: [mail_service_1.MailService],

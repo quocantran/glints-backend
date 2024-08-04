@@ -68,6 +68,10 @@ let JobsService = class JobsService {
             throw new common_1.BadRequestException(err.message);
         }
     }
+    async findJobsBySkillName(names) {
+        const regexNames = names.map(name => new RegExp(name, 'i'));
+        return await this.jobModel.find({ skills: { $in: regexNames } }).lean().exec();
+    }
     async findOne(id) {
         if (!mongoose_2.default.Types.ObjectId.isValid(id)) {
             throw new common_1.NotFoundException('Job not found');
@@ -84,6 +88,9 @@ let JobsService = class JobsService {
         return job;
     }
     async update(id, updateJobDto, user) {
+        if (!mongoose_2.default.Types.ObjectId.isValid(id)) {
+            throw new common_1.NotFoundException('Job not found');
+        }
         const job = Object.assign(Object.assign({}, updateJobDto), { updatedBy: {
                 _id: user._id,
                 name: user.name,

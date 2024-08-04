@@ -19,7 +19,7 @@ export class JobsService {
   constructor(
     @InjectModel(Job.name)
     private readonly jobModel: SoftDeleteModel<JobDocument>,
-  ) {}
+  ) { }
 
   async create(createJobDto: CreateJobDto) {
     const newJob = await this.jobModel.create(createJobDto);
@@ -66,6 +66,12 @@ export class JobsService {
     }
   }
 
+  async findJobsBySkillName(names: string[]) {
+    const regexNames = names.map(name => new RegExp(name, 'i'));
+    return await this.jobModel.find({ skills: { $in: regexNames } }).lean().exec();
+  }
+
+
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Job not found');
@@ -84,6 +90,11 @@ export class JobsService {
   }
 
   async update(id: string, updateJobDto: UpdateJobDto, user: IUser) {
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new NotFoundException('Job not found');
+    }
+
     const job = {
       ...updateJobDto,
       updatedBy: {

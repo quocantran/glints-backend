@@ -24,12 +24,16 @@ const roles_module_1 = require("./roles/roles.module");
 const throttler_1 = require("@nestjs/throttler");
 const forgot_password_module_1 = require("./forgot-password/forgot-password.module");
 const mail_module_1 = require("./mail/mail.module");
+const subscribers_module_1 = require("./subscribers/subscribers.module");
+const skills_module_1 = require("./skills/skills.module");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
             users_module_1.UsersModule,
+            schedule_1.ScheduleModule.forRoot(),
             mongoose_1.MongooseModule.forRootAsync({
                 imports: [config_1.ConfigModule.forRoot()],
                 useFactory: async (configService) => ({
@@ -59,6 +63,8 @@ AppModule = __decorate([
             roles_module_1.RolesModule,
             forgot_password_module_1.ForgotPasswordModule,
             mail_module_1.MailModule,
+            subscribers_module_1.SubscribersModule,
+            skills_module_1.SkillsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

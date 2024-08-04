@@ -30,6 +30,11 @@ export declare class JobsService {
             _id: mongoose.Types.ObjectId;
         }>, never>, never>[];
     }>;
+    findJobsBySkillName(names: string[]): Promise<(mongoose.FlattenMaps<mongoose.Document<unknown, {}, Job> & Job & {
+        _id: mongoose.Types.ObjectId;
+    }> & Required<{
+        _id: mongoose.Types.ObjectId;
+    }>)[]>;
     findOne(id: string): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Job> & Job & {
         _id: mongoose.Types.ObjectId;
     }> & mongoose.Document<unknown, {}, Job> & Job & {

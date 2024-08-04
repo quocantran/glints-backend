@@ -12,9 +12,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailService = void 0;
 const mailer_1 = require("@nestjs-modules/mailer");
 const common_1 = require("@nestjs/common");
+const jobs_service_1 = require("../jobs/jobs.service");
+const subscribers_service_1 = require("../subscribers/subscribers.service");
 let MailService = class MailService {
-    constructor(mailerService) {
+    constructor(mailerService, subscriberService, jobsService) {
         this.mailerService = mailerService;
+        this.subscriberService = subscriberService;
+        this.jobsService = jobsService;
     }
     async sendMail(email, otp) {
         await this.mailerService.sendMail({
@@ -28,10 +32,28 @@ let MailService = class MailService {
         });
         return 'Mail sent';
     }
+    async sendMailToSubscribers() {
+        const subscribers = await this.subscriberService.getAll();
+        for (const subscriber of subscribers) {
+            const skills = subscriber.skills.map((skill) => skill.name);
+            const jobs = await this.jobsService.findJobsBySkillName(skills);
+            await this.mailerService.sendMail({
+                to: subscriber.email,
+                from: 'Support Group*',
+                subject: 'Gợi ý công việc dành cho bạn',
+                template: 'jobs.template.hbs',
+                context: {
+                    name: subscriber.email,
+                    jobs: jobs,
+                },
+            });
+        }
+        return "Mail sent";
+    }
 };
 MailService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [mailer_1.MailerService])
+    __metadata("design:paramtypes", [mailer_1.MailerService, subscribers_service_1.SubscribersService, jobs_service_1.JobsService])
 ], MailService);
 exports.MailService = MailService;
 //# sourceMappingURL=mail.service.js.map

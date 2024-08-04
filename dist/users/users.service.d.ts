@@ -68,7 +68,7 @@ export declare class UsersService {
                 _id: mongoose.Types.ObjectId;
             }, any>>(): ModelType_1;
         };
-        $op: "remove" | "validate" | "save";
+        $op: "save" | "validate" | "remove";
         $session: (session?: mongoose.mongo.ClientSession) => mongoose.mongo.ClientSession;
         $set: {
             (path: string | Record<string, any>, val: any, type: any, options?: mongoose.DocumentSetOptions): mongoose.Document<unknown, {}, User> & User & {

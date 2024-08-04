@@ -50,6 +50,8 @@ var mailer_1 = require("@nestjs-modules/mailer");
 var config_1 = require("@nestjs/config");
 var path_1 = require("path");
 var handlebars_adapter_1 = require("@nestjs-modules/mailer/dist/adapters/handlebars.adapter");
+var subscribers_module_1 = require("src/subscribers/subscribers.module");
+var jobs_module_1 = require("src/jobs/jobs.module");
 var MailModule = /** @class */ (function () {
     function MailModule() {
     }
@@ -82,6 +84,8 @@ var MailModule = /** @class */ (function () {
                     }); },
                     inject: [config_1.ConfigService]
                 }),
+                subscribers_module_1.SubscribersModule,
+                jobs_module_1.JobsModule
             ],
             controllers: [mail_controller_1.MailController],
             providers: [mail_service_1.MailService],

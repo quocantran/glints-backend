@@ -5,6 +5,8 @@ import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { SubscribersModule } from 'src/subscribers/subscribers.module';
+import { JobsModule } from 'src/jobs/jobs.module';
 
 @Module({
   imports: [
@@ -24,14 +26,17 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
           options: {
             strict: true,
           },
+
         },
       }),
 
       inject: [ConfigService],
     }),
+    SubscribersModule,
+    JobsModule
   ],
   controllers: [MailController],
   providers: [MailService],
   exports: [MailModule, MailService],
 })
-export class MailModule {}
+export class MailModule { }

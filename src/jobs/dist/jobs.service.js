@@ -130,6 +130,19 @@ var JobsService = /** @class */ (function () {
             });
         });
     };
+    JobsService.prototype.findJobsBySkillName = function (names) {
+        return __awaiter(this, void 0, void 0, function () {
+            var regexNames;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        regexNames = names.map(function (name) { return new RegExp(name, 'i'); });
+                        return [4 /*yield*/, this.jobModel.find({ skills: { $in: regexNames } }).lean().exec()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     JobsService.prototype.findOne = function (id) {
         return __awaiter(this, void 0, void 0, function () {
             var job;
@@ -161,6 +174,9 @@ var JobsService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
+                        if (!mongoose_2["default"].Types.ObjectId.isValid(id)) {
+                            throw new common_1.NotFoundException('Job not found');
+                        }
                         job = __assign(__assign({}, updateJobDto), { updatedBy: {
                                 _id: user._id,
                                 name: user.name,

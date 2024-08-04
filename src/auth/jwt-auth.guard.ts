@@ -36,6 +36,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       '/api/v1/users/:id/password',
       '/api/v1/resumes',
       '/api/v1/resumes/by-user',
+      '/api/v1/skills',
+      '/api/v1/skills/:id',
+      "/api/v1/subscribers",
+      "/api/v1/subscribers/:id",
     ];
     if (err || !user) {
       throw err || new UnauthorizedException('Token không hợp lệ!');

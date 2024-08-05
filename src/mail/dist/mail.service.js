@@ -56,7 +56,7 @@ var MailService = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        linkVerify = "http://localhost:8000/api/v1/users/password/forgot-password?token=" + token;
+                        linkVerify = "https://glints-backend.vercel.app/api/v1/users/password/forgot-password?token=" + token;
                         return [4 /*yield*/, this.mailerService.sendMail({
                                 to: email,
                                 from: 'Support Group*',

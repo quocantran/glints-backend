@@ -9,7 +9,7 @@ export class MailService {
 
   async sendMail(email: string, token: string) {
 
-    const linkVerify = `http://localhost:8000/api/v1/users/password/forgot-password?token=${token}`;
+    const linkVerify = `https://glints-backend.vercel.app/api/v1/users/password/forgot-password?token=${token}`;
 
     await this.mailerService.sendMail({
       to: email,

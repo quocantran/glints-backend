@@ -8,7 +8,13 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway({ cors: { origin: "https://glints-app-clone.vercel.app" } })
+@WebSocketGateway({
+    cors: {
+        origin: ["https://glints-app-clone.vercel.app", "http://localhost:3000"],
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+})
 export class AppGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer() server: Server;
 

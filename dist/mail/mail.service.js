@@ -21,7 +21,7 @@ let MailService = class MailService {
         this.jobsService = jobsService;
     }
     async sendMail(email, token) {
-        const linkVerify = `http://localhost:8000/api/v1/users/password/forgot-password?token=${token}`;
+        const linkVerify = `https://glints-backend.vercel.app/api/v1/users/password/forgot-password?token=${token}`;
         await this.mailerService.sendMail({
             to: email,
             from: 'Support Group*',

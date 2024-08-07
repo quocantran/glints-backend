@@ -12,6 +12,7 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const serve_static_1 = __importDefault(require("serve-static"));
 const path_1 = require("path");
 const helmet_1 = __importDefault(require("helmet"));
+const platform_socket_io_1 = require("@nestjs/platform-socket.io");
 async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const configService = app.get(config_1.ConfigService);
@@ -27,6 +28,7 @@ async function bootstrap() {
         defaultVersion: ['1', '2'],
     });
     app.use((0, helmet_1.default)());
+    app.useWebSocketAdapter(new platform_socket_io_1.IoAdapter(app));
     app.enableCors({
         origin: ['https://glints-app-clone.vercel.app', 'http://localhost:3000'],
         credentials: true,

@@ -320,6 +320,13 @@ export declare class UsersService {
     } & Required<{
         _id: mongoose.Types.ObjectId;
     }>>;
+    findUserByName(name: string): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, User> & User & {
+        _id: mongoose.Types.ObjectId;
+    }> & mongoose.Document<unknown, {}, User> & User & {
+        _id: mongoose.Types.ObjectId;
+    } & Required<{
+        _id: mongoose.Types.ObjectId;
+    }>>;
     update(id: string, updateUserDto: UpdateUserDto, user: IUser): Promise<mongoose.UpdateWriteOpResult>;
     remove(id: string): Promise<{
         deleted: number;

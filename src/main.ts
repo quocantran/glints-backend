@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser';
 import serveStatic from 'serve-static';
 import { join } from 'path';
 import helmet from 'helmet';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -30,6 +31,8 @@ async function bootstrap() {
   });
 
   app.use(helmet());
+
+  app.useWebSocketAdapter(new IoAdapter(app));
 
   app.enableCors({
     origin: ['https://glints-app-clone.vercel.app', 'http://localhost:3000'],

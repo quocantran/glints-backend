@@ -40,6 +40,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       '/api/v1/skills/:id',
       "/api/v1/subscribers",
       "/api/v1/subscribers/:id",
+      "/api/v1/chats",
+      "/api/v1/chats/:id",
+
     ];
     if (err || !user) {
       throw err || new UnauthorizedException('Token không hợp lệ!');
@@ -51,6 +54,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (targetPath === '/api/v1/resumes' && targetMethod !== 'POST') {
       isPublic = false;
     }
+
     if (isPublic) return user;
     const userPermissions = user?.permissions ?? [];
     const isAllow = userPermissions.find((permission) => {

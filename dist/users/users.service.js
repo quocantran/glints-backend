@@ -167,6 +167,9 @@ let UsersService = class UsersService {
             },
         });
     }
+    async findUserByName(name) {
+        return await this.userModel.findOne({ name: name });
+    }
     async update(id, updateUserDto, user) {
         return await this.userModel.updateOne({
             _id: id,

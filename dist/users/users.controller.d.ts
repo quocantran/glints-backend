@@ -85,7 +85,7 @@ export declare class UsersController {
                 _id: import("mongoose").Types.ObjectId;
             }, any>>(): ModelType_1;
         };
-        $op: "remove" | "validate" | "save";
+        $op: "save" | "validate" | "remove";
         $session: (session?: import("mongodb").ClientSession) => import("mongodb").ClientSession;
         $set: {
             (path: string | Record<string, any>, val: any, type: any, options?: import("mongoose").DocumentSetOptions): import("mongoose").Document<unknown, {}, import("./schemas/user.schema").User> & import("./schemas/user.schema").User & {

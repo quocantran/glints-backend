@@ -119,6 +119,10 @@ export class UsersService {
       });
   }
 
+  async findUserByName(name: string) {
+    return await this.userModel.findOne({ name: name });
+  }
+
   async update(id: string, updateUserDto: UpdateUserDto, user: IUser) {
     return await this.userModel.updateOne(
       {

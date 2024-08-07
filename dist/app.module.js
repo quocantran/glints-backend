@@ -27,6 +27,8 @@ const subscribers_module_1 = require("./subscribers/subscribers.module");
 const skills_module_1 = require("./skills/skills.module");
 const schedule_1 = require("@nestjs/schedule");
 const otps_module_1 = require("./otps/otps.module");
+const gatewaies_module_1 = require("./gatewaies/gatewaies.module");
+const chats_module_1 = require("./chats/chats.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -66,6 +68,8 @@ AppModule = __decorate([
             subscribers_module_1.SubscribersModule,
             skills_module_1.SkillsModule,
             otps_module_1.OtpsModule,
+            gatewaies_module_1.GatewaiesModule,
+            chats_module_1.ChatsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

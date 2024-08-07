@@ -18,6 +18,8 @@ import { SubscribersModule } from './subscribers/subscribers.module';
 import { SkillsModule } from './skills/skills.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { OtpsModule } from './otps/otps.module';
+import { GatewaiesModule } from './gatewaies/gatewaies.module';
+import { ChatsModule } from './chats/chats.module';
 @Module({
   imports: [
     UsersModule,
@@ -58,6 +60,8 @@ import { OtpsModule } from './otps/otps.module';
     SubscribersModule,
     SkillsModule,
     OtpsModule,
+    GatewaiesModule,
+    ChatsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

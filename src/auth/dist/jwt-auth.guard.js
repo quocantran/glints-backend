@@ -53,6 +53,8 @@ var JwtAuthGuard = /** @class */ (function (_super) {
             '/api/v1/skills/:id',
             "/api/v1/subscribers",
             "/api/v1/subscribers/:id",
+            "/api/v1/chats",
+            "/api/v1/chats/:id",
         ];
         if (err || !user) {
             throw err || new common_1.UnauthorizedException('Token không hợp lệ!');

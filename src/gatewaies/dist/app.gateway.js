@@ -46,7 +46,7 @@ var AppGateway = /** @class */ (function () {
         websockets_1.SubscribeMessage('stopTyping')
     ], AppGateway.prototype, "handleStopTyping");
     AppGateway = __decorate([
-        websockets_1.WebSocketGateway({ cors: { origin: "http://localhost:3000" } })
+        websockets_1.WebSocketGateway({ cors: { origin: "https://glints-app-clone.vercel.app" } })
     ], AppGateway);
     return AppGateway;
 }());

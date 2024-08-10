@@ -55,7 +55,13 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleStopTyping", null);
 AppGateway = __decorate([
-    (0, websockets_1.WebSocketGateway)({ cors: { origin: "http://localhost:3000" } })
+    (0, websockets_1.WebSocketGateway)({
+        cors: {
+            origin: ["https://glints-app-clone.vercel.app", "http://localhost:3000"],
+            methods: ["GET", "POST"],
+            credentials: true
+        }
+    })
 ], AppGateway);
 exports.AppGateway = AppGateway;
 //# sourceMappingURL=app.gateway.js.map

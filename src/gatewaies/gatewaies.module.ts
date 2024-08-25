@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppGateway } from './app.gateway';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { CompaniesModule } from 'src/companies/companies.module';
 
 @Module({
-    providers: [AppGateway],
-    controllers: []
+  imports: [CompaniesModule],
+  providers: [AppGateway],
+  controllers: [],
+  exports: [AppGateway, GatewaiesModule],
 })
-export class GatewaiesModule {
-
-}
+export class GatewaiesModule {}

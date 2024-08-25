@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   Logger,
   NotFoundException,
@@ -13,16 +14,30 @@ import aqp from 'api-query-params';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import { SearchJobDto } from './dto/search-job.dto';
+import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()
 export class JobsService {
   constructor(
     @InjectModel(Job.name)
     private readonly jobModel: SoftDeleteModel<JobDocument>,
-  ) { }
 
-  async create(createJobDto: CreateJobDto) {
+    @Inject('RABBITMQ_SERVICE')
+    private readonly client: ClientProxy,
+  ) {}
+
+  async create(createJobDto: CreateJobDto, user: IUser) {
     const newJob = await this.jobModel.create(createJobDto);
+
+    this.client.emit('job_created', {
+      senderId: createJobDto.company._id,
+      content: `Công ty bạn đang theo dõi ${createJobDto.company.name} đã tạo mới công việc ${createJobDto.name}!`,
+      type: 'job',
+      options: {
+        jobId: newJob._id,
+      },
+    });
+
     return newJob;
   }
 
@@ -31,6 +46,15 @@ export class JobsService {
       const { filter, sort, population } = aqp(qs);
       delete filter.current;
       delete filter.pageSize;
+      delete filter.companyId;
+      delete filter.companyName;
+
+      if (qs.companyId && qs.companyName) {
+        filter.company = {
+          _id: qs.companyId,
+          name: qs.companyName,
+        };
+      }
       const totalRecord = (await this.jobModel.find(filter)).length;
       const limit = qs.pageSize ? parseInt(qs.pageSize) : 10;
       const totalPage = Math.ceil(totalRecord / limit);
@@ -49,8 +73,7 @@ export class JobsService {
         })
         .skip(skip)
         .limit(limit)
-        .sort(sort as any)
-        .populate(population);
+        .sort(sort as any);
 
       return {
         meta: {
@@ -67,30 +90,37 @@ export class JobsService {
   }
 
   async findJobsBySkillName(names: string[]) {
-    const regexNames = names.map(name => new RegExp(name, 'i'));
-    return await this.jobModel.find({ skills: { $in: regexNames } }).lean().exec();
+    const regexNames = names.map((name) => new RegExp(name, 'i'));
+    return await this.jobModel
+      .find({ skills: { $in: regexNames } })
+      .lean()
+      .exec();
   }
-
 
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Job not found');
     }
 
-    const job = await this.jobModel.findOne({ _id: id }).populate({
-      path: 'company',
-      select: {
-        name: 1,
-        location: 1,
-        logo: 1,
-        address: 1,
-      },
-    });
+    const job = await this.jobModel
+      .findOne({ _id: id, isDeleted: 'false' })
+      .populate({
+        path: 'company',
+        select: {
+          name: 1,
+          location: 1,
+          logo: 1,
+          address: 1,
+        },
+      });
+
+    if (!job) {
+      throw new BadRequestException('Job not found');
+    }
     return job;
   }
 
   async update(id: string, updateJobDto: UpdateJobDto, user: IUser) {
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Job not found');
     }

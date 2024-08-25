@@ -10,6 +10,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { IUser } from 'src/users/users.interface';
 import { UsersService } from 'src/users/users.service';
+import crypto from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -78,6 +79,8 @@ export class AuthService {
       sameSite: 'none',
       secure: true,
     });
+
+    res.cookie('userId', _id);
     return {
       access_token: this.jwtService.sign(payload),
       user: {
@@ -113,6 +116,81 @@ export class AuthService {
     return {
       _id: newUser._id,
       createdAt: newUser.createdAt,
+    };
+  }
+
+  async googleLogin(req: any, res: Response) {
+    const { user } = req;
+
+    const isExistEmail = (await this.userModel.findOne({
+      email: user.email,
+    })) as unknown as IUser;
+    let currentUser: IUser;
+    let userRole: any;
+
+    const newPassword = crypto.randomBytes(20).toString('hex');
+
+    const hashedPassword = this.usersService.hashPassword(newPassword);
+
+    if (!isExistEmail) {
+      const USER_ROLE = 'NORMAL_USER';
+      userRole = await this.roleModel.findOne({ name: USER_ROLE });
+      currentUser = (await this.userModel.create({
+        email: user.email,
+        name: user.firstName + ' ' + user.lastName,
+        role: userRole?._id,
+        password: hashedPassword,
+        permissions: [],
+      })) as unknown as IUser;
+    } else {
+      userRole = await this.roleModel.findOne({ _id: isExistEmail.role });
+
+      await this.userModel.updateOne(
+        {
+          email: user.email,
+        },
+        {
+          $set: {
+            name: user.firstName + ' ' + user.lastName,
+          },
+        },
+      );
+
+      currentUser = {
+        email: isExistEmail.email,
+        _id: isExistEmail._id,
+        role: isExistEmail.role,
+        name: user.firstName + ' ' + user.lastName,
+        permissions: userRole.permissions,
+      };
+    }
+
+    const payload = {
+      sub: 'token login',
+      iss: 'from server',
+      email: currentUser.email,
+      _id: currentUser._id,
+      role: {
+        _id: userRole._id,
+        name: userRole.name,
+      },
+      name: currentUser.name,
+    };
+    const refreshToken = this.generateRefreshToken(payload);
+
+    await this.usersService.updateUserToken(refreshToken, currentUser._id);
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      maxAge:
+        ms(this.configService.get<string>('JWT_REFRESH_EXPIRES_IN')) * 1000,
+      sameSite: 'none',
+      secure: true,
+    });
+
+    res.cookie('userId', currentUser._id);
+
+    return {
+      access_token: this.jwtService.sign(payload),
     };
   }
 

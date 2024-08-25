@@ -15,6 +15,7 @@ import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUser } from 'src/users/users.interface';
 import { User } from 'src/decorator/customize';
+import { FollowCompanyDto } from './dto/follow-company.dto';
 
 @Controller('companies')
 export class CompaniesController {
@@ -48,6 +49,18 @@ export class CompaniesController {
   @Delete(':id')
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.companiesService.remove(id, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/follow')
+  followCompany(@Body() body: FollowCompanyDto, @User() user: IUser) {
+    return this.companiesService.followCompany(body, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('/unfollow')
+  unfollowCompany(@Body() body: FollowCompanyDto, @User() user: IUser) {
+    return this.companiesService.unfollowCompany(body, user);
   }
 
   @Get('/record/count')

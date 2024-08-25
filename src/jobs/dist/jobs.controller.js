@@ -17,8 +17,8 @@ var JobsController = /** @class */ (function () {
     function JobsController(jobsService) {
         this.jobsService = jobsService;
     }
-    JobsController.prototype.create = function (createJobDto) {
-        return this.jobsService.create(createJobDto);
+    JobsController.prototype.create = function (createJobDto, user) {
+        return this.jobsService.create(createJobDto, user);
     };
     JobsController.prototype.findAll = function (qs) {
         return this.jobsService.findAll(qs);
@@ -41,7 +41,7 @@ var JobsController = /** @class */ (function () {
     __decorate([
         common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
         common_1.Post(),
-        __param(0, common_1.Body())
+        __param(0, common_1.Body()), __param(1, customize_1.User())
     ], JobsController.prototype, "create");
     __decorate([
         common_1.Get(),

@@ -29,6 +29,8 @@ const schedule_1 = require("@nestjs/schedule");
 const otps_module_1 = require("./otps/otps.module");
 const gatewaies_module_1 = require("./gatewaies/gatewaies.module");
 const chats_module_1 = require("./chats/chats.module");
+const notifications_module_1 = require("./notifications/notifications.module");
+const microservices_1 = require("@nestjs/microservices");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -70,6 +72,20 @@ AppModule = __decorate([
             otps_module_1.OtpsModule,
             gatewaies_module_1.GatewaiesModule,
             chats_module_1.ChatsModule,
+            notifications_module_1.NotificationsModule,
+            microservices_1.ClientsModule.register([
+                {
+                    name: 'RABBITMQ_SERVICE',
+                    transport: microservices_1.Transport.RMQ,
+                    options: {
+                        urls: ['amqp://localhost'],
+                        queue: 'noti-queue',
+                        queueOptions: {
+                            durable: false,
+                        },
+                    },
+                },
+            ]),
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

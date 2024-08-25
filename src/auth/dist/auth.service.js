@@ -62,6 +62,7 @@ var mongoose_1 = require("@nestjs/mongoose");
 var ms_1 = require("ms");
 var role_schema_1 = require("src/roles/schemas/role.schema");
 var user_schema_1 = require("src/users/schemas/user.schema");
+var crypto_1 = require("crypto");
 var AuthService = /** @class */ (function () {
     function AuthService(userModel, roleModel, configService, usersService, jwtService) {
         var _this = this;
@@ -216,6 +217,7 @@ var AuthService = /** @class */ (function () {
                             sameSite: 'none',
                             secure: true
                         });
+                        res.cookie('userId', _id);
                         return [2 /*return*/, {
                                 access_token: this.jwtService.sign(payload),
                                 user: {
@@ -254,6 +256,85 @@ var AuthService = /** @class */ (function () {
                         return [2 /*return*/, {
                                 _id: newUser._id,
                                 createdAt: newUser.createdAt
+                            }];
+                }
+            });
+        });
+    };
+    AuthService.prototype.googleLogin = function (req, res) {
+        return __awaiter(this, void 0, void 0, function () {
+            var user, isExistEmail, currentUser, userRole, newPassword, hashedPassword, USER_ROLE, payload, refreshToken;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        user = req.user;
+                        return [4 /*yield*/, this.userModel.findOne({
+                                email: user.email
+                            })];
+                    case 1:
+                        isExistEmail = (_a.sent());
+                        newPassword = crypto_1["default"].randomBytes(20).toString('hex');
+                        hashedPassword = this.usersService.hashPassword(newPassword);
+                        if (!!isExistEmail) return [3 /*break*/, 4];
+                        USER_ROLE = 'NORMAL_USER';
+                        return [4 /*yield*/, this.roleModel.findOne({ name: USER_ROLE })];
+                    case 2:
+                        userRole = _a.sent();
+                        return [4 /*yield*/, this.userModel.create({
+                                email: user.email,
+                                name: user.firstName + ' ' + user.lastName,
+                                role: userRole === null || userRole === void 0 ? void 0 : userRole._id,
+                                password: hashedPassword,
+                                permissions: []
+                            })];
+                    case 3:
+                        currentUser = (_a.sent());
+                        return [3 /*break*/, 7];
+                    case 4: return [4 /*yield*/, this.roleModel.findOne({ _id: isExistEmail.role })];
+                    case 5:
+                        userRole = _a.sent();
+                        return [4 /*yield*/, this.userModel.updateOne({
+                                email: user.email
+                            }, {
+                                $set: {
+                                    name: user.firstName + ' ' + user.lastName
+                                }
+                            })];
+                    case 6:
+                        _a.sent();
+                        currentUser = {
+                            email: isExistEmail.email,
+                            _id: isExistEmail._id,
+                            role: isExistEmail.role,
+                            name: user.firstName + ' ' + user.lastName,
+                            permissions: userRole.permissions
+                        };
+                        _a.label = 7;
+                    case 7:
+                        payload = {
+                            sub: 'token login',
+                            iss: 'from server',
+                            email: currentUser.email,
+                            _id: currentUser._id,
+                            role: {
+                                _id: userRole._id,
+                                name: userRole.name
+                            },
+                            name: currentUser.name
+                        };
+                        refreshToken = this.generateRefreshToken(payload);
+                        return [4 /*yield*/, this.usersService.updateUserToken(refreshToken, currentUser._id)];
+                    case 8:
+                        _a.sent();
+                        res.cookie('refresh_token', refreshToken, {
+                            httpOnly: true,
+                            maxAge: ms_1["default"](this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000,
+                            sameSite: 'none',
+                            secure: true
+                        });
+                        res.cookie('userId', currentUser._id);
+                        return [2 /*return*/, {
+                                access_token: this.jwtService.sign(payload)
                             }];
                 }
             });

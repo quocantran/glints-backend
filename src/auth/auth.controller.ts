@@ -22,6 +22,7 @@ import {
   ThrottlerException,
   ThrottlerGuard,
 } from '@nestjs/throttler';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -51,6 +52,24 @@ export class AuthController {
     const data = (await this.roleSrvice.findOne(user.role._id)) as any;
     user.permissions = data.permissions;
     return { user };
+  }
+
+  @Get('/google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth(@Req() req) {
+    Logger.log('googleAuth');
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(
+    @Req() req,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.googleLogin(req, res);
+    res.redirect(
+      `http://localhost:3000/auth/google?token=${result.access_token}`,
+    );
   }
 
   @Get('/refresh')

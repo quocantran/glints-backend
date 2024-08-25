@@ -63,6 +63,9 @@ export declare class AuthService {
         _id: import("mongoose").Types.ObjectId;
         createdAt: Date;
     }>;
+    googleLogin(req: any, res: Response): Promise<{
+        access_token: string;
+    }>;
     generateNewToken: (refreshToken: string, res: Response) => Promise<{
         access_token: string;
         user: {

@@ -63,10 +63,11 @@ var job_schema_1 = require("./schemas/job.schema");
 var api_query_params_1 = require("api-query-params");
 var mongoose_2 = require("mongoose");
 var JobsService = /** @class */ (function () {
-    function JobsService(jobModel) {
+    function JobsService(jobModel, client) {
         this.jobModel = jobModel;
+        this.client = client;
     }
-    JobsService.prototype.create = function (createJobDto) {
+    JobsService.prototype.create = function (createJobDto, user) {
         return __awaiter(this, void 0, void 0, function () {
             var newJob;
             return __generator(this, function (_a) {
@@ -74,6 +75,14 @@ var JobsService = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.jobModel.create(createJobDto)];
                     case 1:
                         newJob = _a.sent();
+                        this.client.emit('job_created', {
+                            senderId: createJobDto.company._id,
+                            content: "C\u00F4ng ty b\u1EA1n \u0111ang theo d\u00F5i " + createJobDto.company.name + " \u0111\u00E3 t\u1EA1o m\u1EDBi c\u00F4ng vi\u1EC7c " + createJobDto.name + "!",
+                            type: 'job',
+                            options: {
+                                jobId: newJob._id
+                            }
+                        });
                         return [2 /*return*/, newJob];
                 }
             });
@@ -89,6 +98,14 @@ var JobsService = /** @class */ (function () {
                         _a = api_query_params_1["default"](qs), filter = _a.filter, sort = _a.sort, population = _a.population;
                         delete filter.current;
                         delete filter.pageSize;
+                        delete filter.companyId;
+                        delete filter.companyName;
+                        if (qs.companyId && qs.companyName) {
+                            filter.company = {
+                                _id: qs.companyId,
+                                name: qs.companyName
+                            };
+                        }
                         return [4 /*yield*/, this.jobModel.find(filter)];
                     case 1:
                         totalRecord = (_b.sent()).length;
@@ -109,8 +126,7 @@ var JobsService = /** @class */ (function () {
                             })
                                 .skip(skip)
                                 .limit(limit)
-                                .sort(sort)
-                                .populate(population)];
+                                .sort(sort)];
                     case 2:
                         jobs = _b.sent();
                         return [2 /*return*/, {
@@ -137,7 +153,10 @@ var JobsService = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         regexNames = names.map(function (name) { return new RegExp(name, 'i'); });
-                        return [4 /*yield*/, this.jobModel.find({ skills: { $in: regexNames } }).lean().exec()];
+                        return [4 /*yield*/, this.jobModel
+                                .find({ skills: { $in: regexNames } })
+                                .lean()
+                                .exec()];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -152,7 +171,9 @@ var JobsService = /** @class */ (function () {
                         if (!mongoose_2["default"].Types.ObjectId.isValid(id)) {
                             throw new common_1.NotFoundException('Job not found');
                         }
-                        return [4 /*yield*/, this.jobModel.findOne({ _id: id }).populate({
+                        return [4 /*yield*/, this.jobModel
+                                .findOne({ _id: id, isDeleted: 'false' })
+                                .populate({
                                 path: 'company',
                                 select: {
                                     name: 1,
@@ -163,6 +184,9 @@ var JobsService = /** @class */ (function () {
                             })];
                     case 1:
                         job = _a.sent();
+                        if (!job) {
+                            throw new common_1.BadRequestException('Job not found');
+                        }
                         return [2 /*return*/, job];
                 }
             });
@@ -239,7 +263,8 @@ var JobsService = /** @class */ (function () {
     };
     JobsService = __decorate([
         common_1.Injectable(),
-        __param(0, mongoose_1.InjectModel(job_schema_1.Job.name))
+        __param(0, mongoose_1.InjectModel(job_schema_1.Job.name)),
+        __param(1, common_1.Inject('RABBITMQ_SERVICE'))
     ], JobsService);
     return JobsService;
 }());

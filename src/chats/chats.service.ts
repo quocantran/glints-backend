@@ -11,12 +11,11 @@ import { IUser } from 'src/users/users.interface';
 
 @Injectable()
 export class ChatsService {
-
-  constructor(@InjectModel(Chat.name) private readonly chatModel: SoftDeleteModel<ChatDocument>,
-    private readonly userSerivce: UsersService
-
-
-  ) { }
+  constructor(
+    @InjectModel(Chat.name)
+    private readonly chatModel: SoftDeleteModel<ChatDocument>,
+    private readonly userSerivce: UsersService,
+  ) {}
 
   async create(createChatDto: CreateChatDto, user: IUser) {
     if (createChatDto.type != 'text' && createChatDto.type != 'image') {
@@ -27,9 +26,8 @@ export class ChatsService {
       throw new BadRequestException('Content or fileUrl is required');
     }
 
-
     if (user.name !== createChatDto.name) {
-      throw new BadRequestException('User name not found');//
+      throw new BadRequestException('User name not found'); //
     }
 
     const newChat = new this.chatModel({
@@ -38,8 +36,7 @@ export class ChatsService {
       type: createChatDto.type,
       userId: user._id,
       fileUrl: createChatDto.fileUrl,
-    })
-
+    });
 
     const chat = new this.chatModel(newChat);
     return chat.save();
@@ -55,8 +52,8 @@ export class ChatsService {
     const totalRecord = (await this.chatModel.find(filter)).length;
     const limit = qs.pageSize ? parseInt(qs.pageSize) : 50;
     const totalPage = Math.ceil(totalRecord / limit);
-    const skip = (qs.current - 1) * limit;
-    const current = qs.current ? +qs.current : 1;
+    const current = qs.current ? +qs.current : totalPage;
+    const skip = (current - 1) * limit;
     const chats = await this.chatModel
       .find(filter)
       .skip(skip)
@@ -94,8 +91,10 @@ export class ChatsService {
       throw new BadRequestException('Chat not found');
     }
 
-    if (chat.userId.toString() !== user._id as string) {
-      throw new BadRequestException('You do not have permission to delete this chat!');
+    if (chat.userId.toString() !== (user._id as string)) {
+      throw new BadRequestException(
+        'You do not have permission to delete this chat!',
+      );
     }
 
     return this.chatModel.softDelete({ _id: id });

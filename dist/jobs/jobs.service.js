@@ -21,12 +21,22 @@ const mongoose_1 = require("@nestjs/mongoose");
 const job_schema_1 = require("./schemas/job.schema");
 const api_query_params_1 = __importDefault(require("api-query-params"));
 const mongoose_2 = __importDefault(require("mongoose"));
+const microservices_1 = require("@nestjs/microservices");
 let JobsService = class JobsService {
-    constructor(jobModel) {
+    constructor(jobModel, client) {
         this.jobModel = jobModel;
+        this.client = client;
     }
-    async create(createJobDto) {
+    async create(createJobDto, user) {
         const newJob = await this.jobModel.create(createJobDto);
+        this.client.emit('job_created', {
+            senderId: createJobDto.company._id,
+            content: `Công ty bạn đang theo dõi ${createJobDto.company.name} đã tạo mới công việc ${createJobDto.name}!`,
+            type: 'job',
+            options: {
+                jobId: newJob._id,
+            },
+        });
         return newJob;
     }
     async findAll(qs) {
@@ -34,6 +44,14 @@ let JobsService = class JobsService {
             const { filter, sort, population } = (0, api_query_params_1.default)(qs);
             delete filter.current;
             delete filter.pageSize;
+            delete filter.companyId;
+            delete filter.companyName;
+            if (qs.companyId && qs.companyName) {
+                filter.company = {
+                    _id: qs.companyId,
+                    name: qs.companyName,
+                };
+            }
             const totalRecord = (await this.jobModel.find(filter)).length;
             const limit = qs.pageSize ? parseInt(qs.pageSize) : 10;
             const totalPage = Math.ceil(totalRecord / limit);
@@ -52,8 +70,7 @@ let JobsService = class JobsService {
             })
                 .skip(skip)
                 .limit(limit)
-                .sort(sort)
-                .populate(population);
+                .sort(sort);
             return {
                 meta: {
                     current: current,
@@ -69,14 +86,19 @@ let JobsService = class JobsService {
         }
     }
     async findJobsBySkillName(names) {
-        const regexNames = names.map(name => new RegExp(name, 'i'));
-        return await this.jobModel.find({ skills: { $in: regexNames } }).lean().exec();
+        const regexNames = names.map((name) => new RegExp(name, 'i'));
+        return await this.jobModel
+            .find({ skills: { $in: regexNames } })
+            .lean()
+            .exec();
     }
     async findOne(id) {
         if (!mongoose_2.default.Types.ObjectId.isValid(id)) {
             throw new common_1.NotFoundException('Job not found');
         }
-        const job = await this.jobModel.findOne({ _id: id }).populate({
+        const job = await this.jobModel
+            .findOne({ _id: id, isDeleted: 'false' })
+            .populate({
             path: 'company',
             select: {
                 name: 1,
@@ -85,6 +107,9 @@ let JobsService = class JobsService {
                 address: 1,
             },
         });
+        if (!job) {
+            throw new common_1.BadRequestException('Job not found');
+        }
         return job;
     }
     async update(id, updateJobDto, user) {
@@ -127,7 +152,8 @@ let JobsService = class JobsService {
 JobsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(job_schema_1.Job.name)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, common_1.Inject)('RABBITMQ_SERVICE')),
+    __metadata("design:paramtypes", [Object, microservices_1.ClientProxy])
 ], JobsService);
 exports.JobsService = JobsService;
 //# sourceMappingURL=jobs.service.js.map

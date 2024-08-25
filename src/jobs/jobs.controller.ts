@@ -23,8 +23,8 @@ export class JobsController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createJobDto: CreateJobDto) {
-    return this.jobsService.create(createJobDto);
+  create(@Body() createJobDto: CreateJobDto, @User() user: IUser) {
+    return this.jobsService.create(createJobDto, user);
   }
 
   @Get()

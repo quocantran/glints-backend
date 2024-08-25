@@ -24,6 +24,7 @@ const ms_1 = __importDefault(require("ms"));
 const role_schema_1 = require("../roles/schemas/role.schema");
 const user_schema_1 = require("../users/schemas/user.schema");
 const users_service_1 = require("../users/users.service");
+const crypto_1 = __importDefault(require("crypto"));
 let AuthService = class AuthService {
     constructor(userModel, roleModel, configService, usersService, jwtService) {
         this.userModel = userModel;
@@ -143,6 +144,7 @@ let AuthService = class AuthService {
             sameSite: 'none',
             secure: true,
         });
+        res.cookie('userId', _id);
         return {
             access_token: this.jwtService.sign(payload),
             user: {
@@ -168,6 +170,67 @@ let AuthService = class AuthService {
         return {
             _id: newUser._id,
             createdAt: newUser.createdAt,
+        };
+    }
+    async googleLogin(req, res) {
+        const { user } = req;
+        const isExistEmail = (await this.userModel.findOne({
+            email: user.email,
+        }));
+        let currentUser;
+        let userRole;
+        const newPassword = crypto_1.default.randomBytes(20).toString('hex');
+        const hashedPassword = this.usersService.hashPassword(newPassword);
+        if (!isExistEmail) {
+            const USER_ROLE = 'NORMAL_USER';
+            userRole = await this.roleModel.findOne({ name: USER_ROLE });
+            currentUser = (await this.userModel.create({
+                email: user.email,
+                name: user.firstName + ' ' + user.lastName,
+                role: userRole === null || userRole === void 0 ? void 0 : userRole._id,
+                password: hashedPassword,
+                permissions: [],
+            }));
+        }
+        else {
+            userRole = await this.roleModel.findOne({ _id: isExistEmail.role });
+            await this.userModel.updateOne({
+                email: user.email,
+            }, {
+                $set: {
+                    name: user.firstName + ' ' + user.lastName,
+                },
+            });
+            currentUser = {
+                email: isExistEmail.email,
+                _id: isExistEmail._id,
+                role: isExistEmail.role,
+                name: user.firstName + ' ' + user.lastName,
+                permissions: userRole.permissions,
+            };
+        }
+        const payload = {
+            sub: 'token login',
+            iss: 'from server',
+            email: currentUser.email,
+            _id: currentUser._id,
+            role: {
+                _id: userRole._id,
+                name: userRole.name,
+            },
+            name: currentUser.name,
+        };
+        const refreshToken = this.generateRefreshToken(payload);
+        await this.usersService.updateUserToken(refreshToken, currentUser._id);
+        res.cookie('refresh_token', refreshToken, {
+            httpOnly: true,
+            maxAge: (0, ms_1.default)(this.configService.get('JWT_REFRESH_EXPIRES_IN')) * 1000,
+            sameSite: 'none',
+            secure: true,
+        });
+        res.cookie('userId', currentUser._id);
+        return {
+            access_token: this.jwtService.sign(payload),
         };
     }
 };

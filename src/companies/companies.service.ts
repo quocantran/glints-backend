@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { Company, CompanyDocument } from './schemas/company.schema';
@@ -7,6 +11,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
+import { FollowCompanyDto } from './dto/follow-company.dto';
 
 @Injectable()
 export class CompaniesService {
@@ -54,11 +59,67 @@ export class CompaniesService {
     };
   }
 
+  async followCompany(company: FollowCompanyDto, user: IUser) {
+    const { companyId } = company;
+
+    const companyExist = await this.companyModel.findOne({ _id: companyId });
+
+    if (!companyExist) throw new BadRequestException('not found company');
+
+    const userFollow = companyExist.usersFollow.some(
+      (item) => item.toString() === user._id.toString(),
+    );
+
+    if (userFollow)
+      throw new BadRequestException('user already follow company');
+
+    await this.companyModel
+      .findByIdAndUpdate(
+        company.companyId,
+        { $addToSet: { usersFollow: user._id.toString() } },
+        { new: true },
+      )
+      .exec();
+
+    return user._id;
+  }
+
+  async unfollowCompany(company: FollowCompanyDto, user: IUser) {
+    const { companyId } = company;
+
+    const companyExist = await this.companyModel.findOne({ _id: companyId });
+
+    if (!companyExist) throw new BadRequestException('not found company');
+
+    const userFollow = companyExist.usersFollow.some(
+      (item) => item.toString() === user._id.toString(),
+    );
+
+    if (!userFollow) throw new BadRequestException('User not follow company');
+
+    console.log(userFollow);
+
+    console.log(user._id);
+
+    await this.companyModel
+      .findByIdAndUpdate(
+        company.companyId,
+        { $pull: { usersFollow: user._id.toString() } },
+        { new: true },
+      )
+      .exec();
+
+    return user._id;
+  }
+
   async findOne(id: string) {
     if (mongoose.Types.ObjectId.isValid(id) === false)
       throw new NotFoundException('not found company');
 
     const company = await this.companyModel.findOne({ _id: id });
+
+    if (!company) throw new NotFoundException('not found company');
+
     return company;
   }
 

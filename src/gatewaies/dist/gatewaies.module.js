@@ -9,13 +9,18 @@ exports.__esModule = true;
 exports.GatewaiesModule = void 0;
 var common_1 = require("@nestjs/common");
 var app_gateway_1 = require("./app.gateway");
+var companies_module_1 = require("src/companies/companies.module");
 var GatewaiesModule = /** @class */ (function () {
     function GatewaiesModule() {
     }
-    GatewaiesModule = __decorate([
+    GatewaiesModule_1 = GatewaiesModule;
+    var GatewaiesModule_1;
+    GatewaiesModule = GatewaiesModule_1 = __decorate([
         common_1.Module({
+            imports: [companies_module_1.CompaniesModule],
             providers: [app_gateway_1.AppGateway],
-            controllers: []
+            controllers: [],
+            exports: [app_gateway_1.AppGateway, GatewaiesModule_1]
         })
     ], GatewaiesModule);
     return GatewaiesModule;

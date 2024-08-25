@@ -38,11 +38,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       '/api/v1/resumes/by-user',
       '/api/v1/skills',
       '/api/v1/skills/:id',
-      "/api/v1/subscribers",
-      "/api/v1/subscribers/:id",
-      "/api/v1/chats",
-      "/api/v1/chats/:id",
-
+      '/api/v1/subscribers',
+      '/api/v1/subscribers/:id',
+      '/api/v1/chats',
+      '/api/v1/chats/:id',
+      '/api/v1/notifications',
+      '/api/v1/companies/follow',
+      '/api/v1/companies/unfollow',
     ];
     if (err || !user) {
       throw err || new UnauthorizedException('Token không hợp lệ!');

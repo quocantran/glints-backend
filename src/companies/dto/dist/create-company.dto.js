@@ -23,6 +23,9 @@ var CreateCompanyDto = /** @class */ (function () {
     __decorate([
         class_validator_1.IsNotEmpty()
     ], CreateCompanyDto.prototype, "logo");
+    __decorate([
+        class_validator_1.IsOptional()
+    ], CreateCompanyDto.prototype, "usersFollow");
     return CreateCompanyDto;
 }());
 exports.CreateCompanyDto = CreateCompanyDto;

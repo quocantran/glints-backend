@@ -1,4 +1,4 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateCompanyDto {
   @IsNotEmpty({ message: 'name is required' })
@@ -12,4 +12,7 @@ export class CreateCompanyDto {
 
   @IsNotEmpty()
   logo: string;
+
+  @IsOptional()
+  usersFollow: string[];
 }

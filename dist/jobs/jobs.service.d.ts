@@ -5,10 +5,12 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import { SearchJobDto } from './dto/search-job.dto';
+import { ClientProxy } from '@nestjs/microservices';
 export declare class JobsService {
     private readonly jobModel;
-    constructor(jobModel: SoftDeleteModel<JobDocument>);
-    create(createJobDto: CreateJobDto): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Job> & Job & {
+    private readonly client;
+    constructor(jobModel: SoftDeleteModel<JobDocument>, client: ClientProxy);
+    create(createJobDto: CreateJobDto, user: IUser): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Job> & Job & {
         _id: mongoose.Types.ObjectId;
     }> & mongoose.Document<unknown, {}, Job> & Job & {
         _id: mongoose.Types.ObjectId;
@@ -22,13 +24,13 @@ export declare class JobsService {
             pages: number;
             total: number;
         };
-        result: Omit<Omit<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Job> & Job & {
+        result: Omit<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Job> & Job & {
             _id: mongoose.Types.ObjectId;
         }> & mongoose.Document<unknown, {}, Job> & Job & {
             _id: mongoose.Types.ObjectId;
         } & Required<{
             _id: mongoose.Types.ObjectId;
-        }>, never>, never>[];
+        }>, never>[];
     }>;
     findJobsBySkillName(names: string[]): Promise<(mongoose.FlattenMaps<mongoose.Document<unknown, {}, Job> & Job & {
         _id: mongoose.Types.ObjectId;

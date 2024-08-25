@@ -29,5 +29,9 @@ __decorate([
     (0, class_validator_1.IsNotEmpty)(),
     __metadata("design:type", String)
 ], CreateCompanyDto.prototype, "logo", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Array)
+], CreateCompanyDto.prototype, "usersFollow", void 0);
 exports.CreateCompanyDto = CreateCompanyDto;
 //# sourceMappingURL=create-company.dto.js.map

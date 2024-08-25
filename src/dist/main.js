@@ -46,7 +46,8 @@ var serve_static_1 = require("serve-static");
 var path_1 = require("path");
 var helmet_1 = require("helmet");
 var platform_socket_io_1 = require("@nestjs/platform-socket.io");
-function bootstrap() {
+var microservices_1 = require("@nestjs/microservices");
+function bootstrapHttpServer() {
     return __awaiter(this, void 0, void 0, function () {
         var app, configService, PORT;
         return __generator(this, function (_a) {
@@ -74,6 +75,46 @@ function bootstrap() {
                     });
                     PORT = configService.get('PORT');
                     return [4 /*yield*/, app.listen(PORT)];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function bootstrapMicroservice() {
+    return __awaiter(this, void 0, void 0, function () {
+        var app;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, core_1.NestFactory.createMicroservice(app_module_1.AppModule, {
+                        transport: microservices_1.Transport.RMQ,
+                        options: {
+                            urls: ['amqp://localhost'],
+                            queue: 'noti-queue',
+                            queueOptions: {
+                                durable: false
+                            }
+                        }
+                    })];
+                case 1:
+                    app = _a.sent();
+                    return [4 /*yield*/, app.listen()];
+                case 2:
+                    _a.sent();
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function bootstrap() {
+    return __awaiter(this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, bootstrapHttpServer()];
+                case 1:
+                    _a.sent();
+                    return [4 /*yield*/, bootstrapMicroservice()];
                 case 2:
                     _a.sent();
                     return [2 /*return*/];

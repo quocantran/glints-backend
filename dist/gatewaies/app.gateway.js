@@ -12,15 +12,36 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppGateway = void 0;
 const websockets_1 = require("@nestjs/websockets");
 const socket_io_1 = require("socket.io");
+const companies_service_1 = require("../companies/companies.service");
 let AppGateway = class AppGateway {
+    constructor(companiesService) {
+        this.clients = new Map();
+        this.companieSerivce = companiesService;
+    }
     afterInit(server) {
         console.log('Init');
     }
     handleConnection(client, ...args) {
-        console.log(`Client connected: ${client.id}`);
+        const req = client.handshake.query.userId;
+        let userId;
+        if (req) {
+            userId = req.split(':')[1];
+        }
+        if (userId) {
+            this.clients.set(userId, client);
+        }
     }
     handleDisconnect(client) {
-        console.log(`Client disconnected: ${client.id}`);
+        let userIdToRemove;
+        for (const [userId, socket] of this.clients.entries()) {
+            if (socket.id === client.id) {
+                userIdToRemove = userId;
+                break;
+            }
+        }
+        if (userIdToRemove) {
+            this.clients.delete(userIdToRemove);
+        }
     }
     handleMessage(client, payload) {
         this.server.emit('message', payload);
@@ -30,6 +51,27 @@ let AppGateway = class AppGateway {
     }
     handleStopTyping(client) {
         client.broadcast.emit('stopTyping');
+    }
+    async handleSendNotificationFromServer(client, payload) {
+        if (payload === null || payload === void 0 ? void 0 : payload.senderId) {
+            const company = await this.companieSerivce.findOne(payload.senderId);
+            company.usersFollow.forEach((userId) => {
+                const targetClient = this.clients.get('"' + userId + '"');
+                if (targetClient) {
+                    const messages = `Công ty bạn đang theo dõi ${company.name} đã tạo mới công việc ${payload.jobName}!`;
+                    targetClient.emit('notification', {
+                        message: messages,
+                        companyName: company.name,
+                        jobId: payload.jobId,
+                        type: 'job'
+                    });
+                    console.log(`Notification sent to userId: ${userId}`);
+                }
+                else {
+                    console.log(`User with userId: ${userId} not found`);
+                }
+            });
+        }
     }
 };
 __decorate([
@@ -54,14 +96,21 @@ __decorate([
     __metadata("design:paramtypes", [socket_io_1.Socket]),
     __metadata("design:returntype", void 0)
 ], AppGateway.prototype, "handleStopTyping", null);
+__decorate([
+    (0, websockets_1.SubscribeMessage)('notification'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [socket_io_1.Socket, Object]),
+    __metadata("design:returntype", Promise)
+], AppGateway.prototype, "handleSendNotificationFromServer", null);
 AppGateway = __decorate([
     (0, websockets_1.WebSocketGateway)({
         cors: {
-            origin: ["https://glints-app-clone.vercel.app", "http://localhost:3000"],
-            methods: ["GET", "POST"],
-            credentials: true
-        }
-    })
+            origin: 'http://localhost:3000',
+            methods: ['GET', 'POST'],
+            credentials: true,
+        },
+    }),
+    __metadata("design:paramtypes", [companies_service_1.CompaniesService])
 ], AppGateway);
 exports.AppGateway = AppGateway;
 //# sourceMappingURL=app.gateway.js.map

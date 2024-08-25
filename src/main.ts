@@ -9,8 +9,9 @@ import serveStatic from 'serve-static';
 import { join } from 'path';
 import helmet from 'helmet';
 import { IoAdapter } from '@nestjs/platform-socket.io';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
-async function bootstrap() {
+async function bootstrapHttpServer() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
@@ -40,5 +41,28 @@ async function bootstrap() {
   });
   const PORT = configService.get<string>('PORT');
   await app.listen(PORT);
+}
+
+async function bootstrapMicroservice() {
+  const app = await NestFactory.createMicroservice<MicroserviceOptions>(
+    AppModule,
+    {
+      transport: Transport.RMQ,
+      options: {
+        urls: ['amqp://localhost'],
+        queue: 'noti-queue',
+        queueOptions: {
+          durable: false,
+        },
+      },
+    },
+  );
+
+  await app.listen();
+}
+
+async function bootstrap() {
+  await bootstrapHttpServer();
+  await bootstrapMicroservice();
 }
 bootstrap();

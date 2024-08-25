@@ -31,7 +31,7 @@ import { SearchJobDto } from './dto/search-job.dto';
 export declare class JobsController {
     private readonly jobsService;
     constructor(jobsService: JobsService);
-    create(createJobDto: CreateJobDto): Promise<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
+    create(createJobDto: CreateJobDto, user: IUser): Promise<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
         _id: import("mongoose").Types.ObjectId;
     }> & import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
         _id: import("mongoose").Types.ObjectId;
@@ -45,13 +45,13 @@ export declare class JobsController {
             pages: number;
             total: number;
         };
-        result: Omit<Omit<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
+        result: Omit<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
             _id: import("mongoose").Types.ObjectId;
         }> & import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
             _id: import("mongoose").Types.ObjectId;
         } & Required<{
             _id: import("mongoose").Types.ObjectId;
-        }>, never>, never>[];
+        }>, never>[];
     }>;
     findOne(id: string): Promise<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
         _id: import("mongoose").Types.ObjectId;

@@ -24,8 +24,8 @@ let JobsController = class JobsController {
     constructor(jobsService) {
         this.jobsService = jobsService;
     }
-    create(createJobDto) {
-        return this.jobsService.create(createJobDto);
+    create(createJobDto, user) {
+        return this.jobsService.create(createJobDto, user);
     }
     findAll(qs) {
         return this.jobsService.findAll(qs);
@@ -50,8 +50,9 @@ __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, customize_1.User)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_job_dto_1.CreateJobDto]),
+    __metadata("design:paramtypes", [create_job_dto_1.CreateJobDto, Object]),
     __metadata("design:returntype", void 0)
 ], JobsController.prototype, "create", null);
 __decorate([

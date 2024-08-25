@@ -57,8 +57,8 @@ let ChatsService = class ChatsService {
         const totalRecord = (await this.chatModel.find(filter)).length;
         const limit = qs.pageSize ? parseInt(qs.pageSize) : 50;
         const totalPage = Math.ceil(totalRecord / limit);
-        const skip = (qs.current - 1) * limit;
-        const current = qs.current ? +qs.current : 1;
+        const current = qs.current ? +qs.current : totalPage;
+        const skip = (current - 1) * limit;
         const chats = await this.chatModel
             .find(filter)
             .skip(skip)

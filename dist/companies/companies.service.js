@@ -58,10 +58,40 @@ let CompaniesService = class CompaniesService {
             result: companies,
         };
     }
+    async followCompany(company, user) {
+        const { companyId } = company;
+        const companyExist = await this.companyModel.findOne({ _id: companyId });
+        if (!companyExist)
+            throw new common_1.BadRequestException('not found company');
+        const userFollow = companyExist.usersFollow.some((item) => item.toString() === user._id.toString());
+        if (userFollow)
+            throw new common_1.BadRequestException('user already follow company');
+        await this.companyModel
+            .findByIdAndUpdate(company.companyId, { $addToSet: { usersFollow: user._id.toString() } }, { new: true })
+            .exec();
+        return user._id;
+    }
+    async unfollowCompany(company, user) {
+        const { companyId } = company;
+        const companyExist = await this.companyModel.findOne({ _id: companyId });
+        if (!companyExist)
+            throw new common_1.BadRequestException('not found company');
+        const userFollow = companyExist.usersFollow.some((item) => item.toString() === user._id.toString());
+        if (!userFollow)
+            throw new common_1.BadRequestException('User not follow company');
+        console.log(userFollow);
+        console.log(user._id);
+        await this.companyModel
+            .findByIdAndUpdate(company.companyId, { $pull: { usersFollow: user._id.toString() } }, { new: true })
+            .exec();
+        return user._id;
+    }
     async findOne(id) {
         if (mongoose_2.default.Types.ObjectId.isValid(id) === false)
             throw new common_1.NotFoundException('not found company');
         const company = await this.companyModel.findOne({ _id: id });
+        if (!company)
+            throw new common_1.NotFoundException('not found company');
         return company;
     }
     async update(id, updateCompanyDto, user) {

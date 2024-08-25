@@ -21,6 +21,7 @@ const create_user_dto_1 = require("../users/dto/create-user.dto");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
 const roles_service_1 = require("../roles/roles.service");
 const throttler_1 = require("@nestjs/throttler");
+const passport_1 = require("@nestjs/passport");
 let AuthController = class AuthController {
     constructor(authService, roleSrvice) {
         this.authService = authService;
@@ -36,6 +37,13 @@ let AuthController = class AuthController {
         const data = (await this.roleSrvice.findOne(user.role._id));
         user.permissions = data.permissions;
         return { user };
+    }
+    async googleAuth(req) {
+        common_1.Logger.log('googleAuth');
+    }
+    async googleAuthRedirect(req, res) {
+        const result = await this.authService.googleLogin(req, res);
+        res.redirect(`http://localhost:3000/auth/google?token=${result.access_token}`);
     }
     handleRefresh(req, res) {
         const refreshToken = req.cookies['refresh_token'];
@@ -72,6 +80,23 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "handleAccount", null);
+__decorate([
+    (0, common_1.Get)('/google'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('google')),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "googleAuth", null);
+__decorate([
+    (0, common_1.Get)('google/callback'),
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('google')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Res)({ passthrough: true })),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "googleAuthRedirect", null);
 __decorate([
     (0, common_1.Get)('/refresh'),
     __param(0, (0, common_1.Req)()),

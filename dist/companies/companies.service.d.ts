@@ -4,6 +4,7 @@ import { Company, CompanyDocument } from './schemas/company.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
+import { FollowCompanyDto } from './dto/follow-company.dto';
 export declare class CompaniesService {
     private companyModel;
     constructor(companyModel: SoftDeleteModel<CompanyDocument>);
@@ -29,6 +30,8 @@ export declare class CompaniesService {
             _id: mongoose.Types.ObjectId;
         }>, never>[];
     }>;
+    followCompany(company: FollowCompanyDto, user: IUser): Promise<string>;
+    unfollowCompany(company: FollowCompanyDto, user: IUser): Promise<string>;
     findOne(id: string): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Company> & Company & {
         _id: mongoose.Types.ObjectId;
     }> & mongoose.Document<unknown, {}, Company> & Company & {

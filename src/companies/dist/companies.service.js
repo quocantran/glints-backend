@@ -120,6 +120,58 @@ var CompaniesService = /** @class */ (function () {
             });
         });
     };
+    CompaniesService.prototype.followCompany = function (company, user) {
+        return __awaiter(this, void 0, void 0, function () {
+            var companyId, companyExist, userFollow;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        companyId = company.companyId;
+                        return [4 /*yield*/, this.companyModel.findOne({ _id: companyId })];
+                    case 1:
+                        companyExist = _a.sent();
+                        if (!companyExist)
+                            throw new common_1.BadRequestException('not found company');
+                        userFollow = companyExist.usersFollow.some(function (item) { return item.toString() === user._id.toString(); });
+                        if (userFollow)
+                            throw new common_1.BadRequestException('user already follow company');
+                        return [4 /*yield*/, this.companyModel
+                                .findByIdAndUpdate(company.companyId, { $addToSet: { usersFollow: user._id.toString() } }, { "new": true })
+                                .exec()];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, user._id];
+                }
+            });
+        });
+    };
+    CompaniesService.prototype.unfollowCompany = function (company, user) {
+        return __awaiter(this, void 0, void 0, function () {
+            var companyId, companyExist, userFollow;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        companyId = company.companyId;
+                        return [4 /*yield*/, this.companyModel.findOne({ _id: companyId })];
+                    case 1:
+                        companyExist = _a.sent();
+                        if (!companyExist)
+                            throw new common_1.BadRequestException('not found company');
+                        userFollow = companyExist.usersFollow.some(function (item) { return item.toString() === user._id.toString(); });
+                        if (!userFollow)
+                            throw new common_1.BadRequestException('User not follow company');
+                        console.log(userFollow);
+                        console.log(user._id);
+                        return [4 /*yield*/, this.companyModel
+                                .findByIdAndUpdate(company.companyId, { $pull: { usersFollow: user._id.toString() } }, { "new": true })
+                                .exec()];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, user._id];
+                }
+            });
+        });
+    };
     CompaniesService.prototype.findOne = function (id) {
         return __awaiter(this, void 0, void 0, function () {
             var company;
@@ -131,6 +183,8 @@ var CompaniesService = /** @class */ (function () {
                         return [4 /*yield*/, this.companyModel.findOne({ _id: id })];
                     case 1:
                         company = _a.sent();
+                        if (!company)
+                            throw new common_1.NotFoundException('not found company');
                         return [2 /*return*/, company];
                 }
             });

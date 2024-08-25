@@ -19,15 +19,14 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { OtpsService } from 'src/otps/otps.service';
 import { MailService } from 'src/mail/mail.service';
 
-
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>,
-    @Inject(forwardRef(() => OtpsService)) private readonly otpService: OtpsService,
-    private readonly mailService: MailService
-
-  ) { }
+    @Inject(forwardRef(() => OtpsService))
+    private readonly otpService: OtpsService,
+    private readonly mailService: MailService,
+  ) {}
 
   hashPassword = (password: string) => {
     const salt = bcrypt.genSaltSync(10);
@@ -96,15 +95,21 @@ export class UsersService {
     if (mongoose.Types.ObjectId.isValid(id) === false)
       throw new NotFoundException('not found user');
 
-    const user = await this.userModel.findOne({ _id: id }).populate({
-      path: 'role',
-      select: {
-        name: 1,
-        _id: 1,
-      },
-    });
-    const { password, ...result } = user.toJSON();
-    return result;
+    const user = await this.userModel
+      .findOne({ _id: id })
+      .populate({
+        path: 'role',
+        select: {
+          name: 1,
+          _id: 1,
+        },
+      })
+      .select('-password -refreshToken');
+    if (!user) {
+      throw new BadRequestException('not found user');
+    }
+
+    return user;
   }
 
   async findUserByUsername(username: string) {
@@ -176,7 +181,6 @@ export class UsersService {
   };
 
   async forgotPassword(token: string) {
-
     const user = await this.otpService.checkToken(token);
 
     if (!user) {
@@ -191,7 +195,10 @@ export class UsersService {
     const newPassword = this.generateOtp(8);
 
     const passwordHash = this.hashPassword(newPassword);
-    await this.userModel.updateOne({ email: user.email }, { password: passwordHash });
+    await this.userModel.updateOne(
+      { email: user.email },
+      { password: passwordHash },
+    );
     await this.mailService.sendPasswordResetMail(user.email, newPassword);
     await this.otpService.remove(token);
     return true;

@@ -3,4 +3,5 @@ export declare class CreateCompanyDto {
     address: string;
     description: string;
     logo: string;
+    usersFollow: string[];
 }

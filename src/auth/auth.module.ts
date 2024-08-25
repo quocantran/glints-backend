@@ -13,6 +13,7 @@ import { User, UserSchema } from 'src/users/schemas/user.schema';
 import { Role, RoleSchema } from 'src/roles/schemas/role.schema';
 import { RolesService } from 'src/roles/roles.service';
 import { RolesModule } from 'src/roles/roles.module';
+import { GoogleStrategy } from './passport/google.strategy';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { RolesModule } from 'src/roles/roles.module';
     MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, RolesService],
+  providers: [AuthService, LocalStrategy, JwtStrategy, RolesService, GoogleStrategy],
   exports: [AuthService, LocalStrategy],
 })
 export class AuthModule {}

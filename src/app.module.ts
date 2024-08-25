@@ -20,6 +20,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { OtpsModule } from './otps/otps.module';
 import { GatewaiesModule } from './gatewaies/gatewaies.module';
 import { ChatsModule } from './chats/chats.module';
+import { NotificationsModule } from './notifications/notifications.module';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 @Module({
   imports: [
     UsersModule,
@@ -62,9 +64,23 @@ import { ChatsModule } from './chats/chats.module';
     OtpsModule,
     GatewaiesModule,
     ChatsModule,
+    NotificationsModule,
+    ClientsModule.register([
+      {
+        name: 'RABBITMQ_SERVICE',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost'],
+          queue: 'noti-queue',
+          queueOptions: {
+            durable: false,
+          },
+        },
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [AppService],
   exports: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -13,7 +13,8 @@ const serve_static_1 = __importDefault(require("serve-static"));
 const path_1 = require("path");
 const helmet_1 = __importDefault(require("helmet"));
 const platform_socket_io_1 = require("@nestjs/platform-socket.io");
-async function bootstrap() {
+const microservices_1 = require("@nestjs/microservices");
+async function bootstrapHttpServer() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     const configService = app.get(config_1.ConfigService);
     app.useGlobalPipes(new common_1.ValidationPipe({
@@ -35,6 +36,23 @@ async function bootstrap() {
     });
     const PORT = configService.get('PORT');
     await app.listen(PORT);
+}
+async function bootstrapMicroservice() {
+    const app = await core_1.NestFactory.createMicroservice(app_module_1.AppModule, {
+        transport: microservices_1.Transport.RMQ,
+        options: {
+            urls: ['amqp://localhost'],
+            queue: 'noti-queue',
+            queueOptions: {
+                durable: false,
+            },
+        },
+    });
+    await app.listen();
+}
+async function bootstrap() {
+    await bootstrapHttpServer();
+    await bootstrapMicroservice();
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

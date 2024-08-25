@@ -5,6 +5,7 @@ export declare class Company {
     description: string;
     address: string;
     updatedAt: Date;
+    usersFollow: mongoose.Schema.Types.ObjectId[];
     createdAt: Date;
     isDeleted: boolean;
     logo: string;

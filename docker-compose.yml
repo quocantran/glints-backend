@@ -11,19 +11,14 @@ services:
       - .:/app
     environment:
       PORT: 8000
-      MONGODB_URL: ${MONGODB_URL}
-      JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
-      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN}
-      EMAIL_USER: ${EMAIL_USER}
-      EMAIL_PASSWORD: ${EMAIL_PASSWORD}
-      EMAIL_HOST: ${EMAIL_HOST}
-      CLOUD_NAME: ${CLOUD_NAME}
-      API_KEY: ${API_KEY}
-      API_SECRET: ${API_SECRET}
-    networks:
-      - glints-network
-
-networks:
-  glints-network:
+      MONGODB_URL: mongodb+srv://quocan142536:Ta123456@cluster0.emuywiy.mongodb.net/nestjs-basic?retryWrites=true&w=majority
+      JWT_SECRET: asfasdasfsdgsdfdsgdsg
+      JWT_EXPIRES_IN: 600000
+      JWT_REFRESH_SECRET: jkjdaskjk123kaja32312askjkda
+      JWT_REFRESH_EXPIRES_IN: 365d
+      EMAIL_USER: quocan142536@gmail.com
+      EMAIL_PASSWORD: dolc dmtp axyf ftfw
+      EMAIL_HOST: smtp.gmail.com
+      CLOUD_NAME: diieofzuv
+      API_KEY: "857436649758796"
+      API_SECRET: 4U7iebWFs_oFxX_JuvCAAeOpi3c

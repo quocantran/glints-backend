@@ -32,6 +32,12 @@ var CompaniesController = /** @class */ (function () {
     CompaniesController.prototype.remove = function (id, user) {
         return this.companiesService.remove(id, user);
     };
+    CompaniesController.prototype.followCompany = function (body, user) {
+        return this.companiesService.followCompany(body, user);
+    };
+    CompaniesController.prototype.unfollowCompany = function (body, user) {
+        return this.companiesService.unfollowCompany(body, user);
+    };
     CompaniesController.prototype.countCompanies = function () {
         return this.companiesService.countCompanies();
     };
@@ -60,6 +66,16 @@ var CompaniesController = /** @class */ (function () {
         common_1.Delete(':id'),
         __param(0, common_1.Param('id')), __param(1, customize_1.User())
     ], CompaniesController.prototype, "remove");
+    __decorate([
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        common_1.Post('/follow'),
+        __param(0, common_1.Body()), __param(1, customize_1.User())
+    ], CompaniesController.prototype, "followCompany");
+    __decorate([
+        common_1.UseGuards(jwt_auth_guard_1.JwtAuthGuard),
+        common_1.Post('/unfollow'),
+        __param(0, common_1.Body()), __param(1, customize_1.User())
+    ], CompaniesController.prototype, "unfollowCompany");
     __decorate([
         common_1.Get('/record/count')
     ], CompaniesController.prototype, "countCompanies");

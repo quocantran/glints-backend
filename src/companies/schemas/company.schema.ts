@@ -16,6 +16,9 @@ export class Company {
   @Prop()
   updatedAt: Date;
 
+  @Prop({ type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] })
+  usersFollow: mongoose.Schema.Types.ObjectId[];
+
   @Prop()
   createdAt: Date;
 

@@ -25,6 +25,7 @@ const user_schema_1 = require("../users/schemas/user.schema");
 const role_schema_1 = require("../roles/schemas/role.schema");
 const roles_service_1 = require("../roles/roles.service");
 const roles_module_1 = require("../roles/roles.module");
+const google_strategy_1 = require("./passport/google.strategy");
 let AuthModule = class AuthModule {
 };
 AuthModule = __decorate([
@@ -47,7 +48,7 @@ AuthModule = __decorate([
             mongoose_1.MongooseModule.forFeature([{ name: role_schema_1.Role.name, schema: role_schema_1.RoleSchema }]),
         ],
         controllers: [auth_controller_1.AuthController],
-        providers: [auth_service_1.AuthService, local_strategy_1.LocalStrategy, jwt_strategy_1.JwtStrategy, roles_service_1.RolesService],
+        providers: [auth_service_1.AuthService, local_strategy_1.LocalStrategy, jwt_strategy_1.JwtStrategy, roles_service_1.RolesService, google_strategy_1.GoogleStrategy],
         exports: [auth_service_1.AuthService, local_strategy_1.LocalStrategy],
     })
 ], AuthModule);

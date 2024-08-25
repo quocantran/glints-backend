@@ -60,6 +60,8 @@ export declare class AuthController {
     handleAccount(user: IUser): Promise<{
         user: IUser;
     }>;
+    googleAuth(req: any): Promise<void>;
+    googleAuthRedirect(req: any, res: Response): Promise<void>;
     handleRefresh(req: Request, res: Response): Promise<{
         access_token: string;
         user: {

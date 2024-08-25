@@ -19,6 +19,7 @@ const create_company_dto_1 = require("./dto/create-company.dto");
 const update_company_dto_1 = require("./dto/update-company.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const customize_1 = require("../decorator/customize");
+const follow_company_dto_1 = require("./dto/follow-company.dto");
 let CompaniesController = class CompaniesController {
     constructor(companiesService) {
         this.companiesService = companiesService;
@@ -37,6 +38,12 @@ let CompaniesController = class CompaniesController {
     }
     remove(id, user) {
         return this.companiesService.remove(id, user);
+    }
+    followCompany(body, user) {
+        return this.companiesService.followCompany(body, user);
+    }
+    unfollowCompany(body, user) {
+        return this.companiesService.unfollowCompany(body, user);
     }
     countCompanies() {
         return this.companiesService.countCompanies();
@@ -84,6 +91,24 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], CompaniesController.prototype, "remove", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('/follow'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, customize_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [follow_company_dto_1.FollowCompanyDto, Object]),
+    __metadata("design:returntype", void 0)
+], CompaniesController.prototype, "followCompany", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Post)('/unfollow'),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, customize_1.User)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [follow_company_dto_1.FollowCompanyDto, Object]),
+    __metadata("design:returntype", void 0)
+], CompaniesController.prototype, "unfollowCompany", null);
 __decorate([
     (0, common_1.Get)('/record/count'),
     __metadata("design:type", Function),

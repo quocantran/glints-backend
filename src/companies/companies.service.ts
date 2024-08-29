@@ -12,6 +12,7 @@ import { IUser } from 'src/users/users.interface';
 import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { FollowCompanyDto } from './dto/follow-company.dto';
+import { MyElasticsearchsService } from 'src/elasticsearchs/myElasticsearchs.service';
 
 @Injectable()
 export class CompaniesService {
@@ -30,6 +31,10 @@ export class CompaniesService {
       },
     });
     return newCompany;
+  }
+
+  async getAll() {
+    return await this.companyModel.find().lean().exec();
   }
 
   async findAll(qs: any) {
@@ -116,7 +121,10 @@ export class CompaniesService {
     if (mongoose.Types.ObjectId.isValid(id) === false)
       throw new NotFoundException('not found company');
 
-    const company = await this.companyModel.findOne({ _id: id });
+    const company = await this.companyModel.findOne({
+      _id: id,
+      isDeleted: false,
+    });
 
     if (!company) throw new NotFoundException('not found company');
 

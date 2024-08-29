@@ -83,6 +83,16 @@ var CompaniesService = /** @class */ (function () {
             });
         });
     };
+    CompaniesService.prototype.getAll = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.companyModel.find().lean().exec()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     CompaniesService.prototype.findAll = function (qs) {
         return __awaiter(this, void 0, void 0, function () {
             var _a, filter, sort, population, totalRecord, limit, totalPage, skip, current, companies;
@@ -180,7 +190,10 @@ var CompaniesService = /** @class */ (function () {
                     case 0:
                         if (mongoose_2["default"].Types.ObjectId.isValid(id) === false)
                             throw new common_1.NotFoundException('not found company');
-                        return [4 /*yield*/, this.companyModel.findOne({ _id: id })];
+                        return [4 /*yield*/, this.companyModel.findOne({
+                                _id: id,
+                                isDeleted: false
+                            })];
                     case 1:
                         company = _a.sent();
                         if (!company)

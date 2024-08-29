@@ -48,8 +48,9 @@ async function bootstrapMicroservice() {
     AppModule,
     {
       transport: Transport.RMQ,
+
       options: {
-        urls: ['amqp://localhost'],
+        urls: [process.env.RMQ_URL as string],
         queue: 'noti-queue',
         queueOptions: {
           durable: false,

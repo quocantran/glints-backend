@@ -8,6 +8,8 @@ import {
   Delete,
   UseGuards,
   Query,
+  UseInterceptors,
+  CacheTTL,
 } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
@@ -16,7 +18,9 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { SearchJobDto } from './dto/search-job.dto';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
+@UseInterceptors(CacheInterceptor)
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
@@ -27,6 +31,7 @@ export class JobsController {
     return this.jobsService.create(createJobDto, user);
   }
 
+  @CacheTTL(60)
   @Get()
   findAll(@Query() qs: string) {
     return this.jobsService.findAll(qs);

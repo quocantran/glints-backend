@@ -62,11 +62,23 @@ var mongoose_1 = require("@nestjs/mongoose");
 var job_schema_1 = require("./schemas/job.schema");
 var api_query_params_1 = require("api-query-params");
 var mongoose_2 = require("mongoose");
+var cache_manager_1 = require("@nestjs/cache-manager");
 var JobsService = /** @class */ (function () {
-    function JobsService(jobModel, client) {
+    function JobsService(jobModel, client, cacheManager) {
         this.jobModel = jobModel;
         this.client = client;
+        this.cacheManager = cacheManager;
     }
+    JobsService.prototype.getAll = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.jobModel.find().lean().exec()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
     JobsService.prototype.create = function (createJobDto, user) {
         return __awaiter(this, void 0, void 0, function () {
             var newJob;
@@ -90,11 +102,18 @@ var JobsService = /** @class */ (function () {
     };
     JobsService.prototype.findAll = function (qs) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, filter, sort, population, totalRecord, limit, totalPage, skip, current, jobs, err_1;
+            var cacheKey, cacheValue, _a, filter, sort, population, totalRecord, limit, totalPage, skip, current, jobs, response, err_1;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        _b.trys.push([0, 3, , 4]);
+                        _b.trys.push([0, 4, , 5]);
+                        cacheKey = JSON.stringify(qs);
+                        return [4 /*yield*/, this.cacheManager.get(cacheKey)];
+                    case 1:
+                        cacheValue = (_b.sent());
+                        if (cacheValue) {
+                            return [2 /*return*/, JSON.parse(cacheValue)];
+                        }
                         _a = api_query_params_1["default"](qs), filter = _a.filter, sort = _a.sort, population = _a.population;
                         delete filter.current;
                         delete filter.pageSize;
@@ -107,7 +126,7 @@ var JobsService = /** @class */ (function () {
                             };
                         }
                         return [4 /*yield*/, this.jobModel.find(filter)];
-                    case 1:
+                    case 2:
                         totalRecord = (_b.sent()).length;
                         limit = qs.pageSize ? parseInt(qs.pageSize) : 10;
                         totalPage = Math.ceil(totalRecord / limit);
@@ -127,21 +146,22 @@ var JobsService = /** @class */ (function () {
                                 .skip(skip)
                                 .limit(limit)
                                 .sort(sort)];
-                    case 2:
-                        jobs = _b.sent();
-                        return [2 /*return*/, {
-                                meta: {
-                                    current: current,
-                                    pageSize: limit,
-                                    pages: totalPage,
-                                    total: totalRecord
-                                },
-                                result: jobs
-                            }];
                     case 3:
+                        jobs = _b.sent();
+                        response = {
+                            meta: {
+                                current: current,
+                                pageSize: limit,
+                                pages: totalPage,
+                                total: totalRecord
+                            },
+                            result: jobs
+                        };
+                        return [2 /*return*/, response];
+                    case 4:
                         err_1 = _b.sent();
                         throw new common_1.BadRequestException(err_1.message);
-                    case 4: return [2 /*return*/];
+                    case 5: return [2 /*return*/];
                 }
             });
         });
@@ -264,7 +284,8 @@ var JobsService = /** @class */ (function () {
     JobsService = __decorate([
         common_1.Injectable(),
         __param(0, mongoose_1.InjectModel(job_schema_1.Job.name)),
-        __param(1, common_1.Inject('RABBITMQ_SERVICE'))
+        __param(1, common_1.Inject('RABBITMQ_SERVICE')),
+        __param(2, common_1.Inject(cache_manager_1.CACHE_MANAGER))
     ], JobsService);
     return JobsService;
 }());

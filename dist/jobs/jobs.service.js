@@ -22,10 +22,15 @@ const job_schema_1 = require("./schemas/job.schema");
 const api_query_params_1 = __importDefault(require("api-query-params"));
 const mongoose_2 = __importDefault(require("mongoose"));
 const microservices_1 = require("@nestjs/microservices");
+const cache_manager_1 = require("@nestjs/cache-manager");
 let JobsService = class JobsService {
-    constructor(jobModel, client) {
+    constructor(jobModel, client, cacheManager) {
         this.jobModel = jobModel;
         this.client = client;
+        this.cacheManager = cacheManager;
+    }
+    async getAll() {
+        return await this.jobModel.find().lean().exec();
     }
     async create(createJobDto, user) {
         const newJob = await this.jobModel.create(createJobDto);
@@ -41,6 +46,11 @@ let JobsService = class JobsService {
     }
     async findAll(qs) {
         try {
+            const cacheKey = JSON.stringify(qs);
+            const cacheValue = (await this.cacheManager.get(cacheKey));
+            if (cacheValue) {
+                return JSON.parse(cacheValue);
+            }
             const { filter, sort, population } = (0, api_query_params_1.default)(qs);
             delete filter.current;
             delete filter.pageSize;
@@ -71,7 +81,7 @@ let JobsService = class JobsService {
                 .skip(skip)
                 .limit(limit)
                 .sort(sort);
-            return {
+            const response = {
                 meta: {
                     current: current,
                     pageSize: limit,
@@ -80,6 +90,7 @@ let JobsService = class JobsService {
                 },
                 result: jobs,
             };
+            return response;
         }
         catch (err) {
             throw new common_1.BadRequestException(err.message);
@@ -153,7 +164,8 @@ JobsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(job_schema_1.Job.name)),
     __param(1, (0, common_1.Inject)('RABBITMQ_SERVICE')),
-    __metadata("design:paramtypes", [Object, microservices_1.ClientProxy])
+    __param(2, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
+    __metadata("design:paramtypes", [Object, microservices_1.ClientProxy, Object])
 ], JobsService);
 exports.JobsService = JobsService;
 //# sourceMappingURL=jobs.service.js.map

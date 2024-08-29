@@ -15,6 +15,8 @@ import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import { SearchJobDto } from './dto/search-job.dto';
 import { ClientProxy } from '@nestjs/microservices';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class JobsService {
@@ -24,7 +26,13 @@ export class JobsService {
 
     @Inject('RABBITMQ_SERVICE')
     private readonly client: ClientProxy,
+
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
+
+  async getAll() {
+    return await this.jobModel.find().lean().exec();
+  }
 
   async create(createJobDto: CreateJobDto, user: IUser) {
     const newJob = await this.jobModel.create(createJobDto);
@@ -43,6 +51,14 @@ export class JobsService {
 
   async findAll(qs: any) {
     try {
+      const cacheKey = JSON.stringify(qs);
+
+      const cacheValue = (await this.cacheManager.get(cacheKey)) as string;
+
+      if (cacheValue) {
+        return JSON.parse(cacheValue);
+      }
+
       const { filter, sort, population } = aqp(qs);
       delete filter.current;
       delete filter.pageSize;
@@ -75,7 +91,7 @@ export class JobsService {
         .limit(limit)
         .sort(sort as any);
 
-      return {
+      const response = {
         meta: {
           current: current,
           pageSize: limit,
@@ -84,6 +100,8 @@ export class JobsService {
         },
         result: jobs,
       };
+
+      return response;
     } catch (err) {
       throw new BadRequestException(err.message);
     }

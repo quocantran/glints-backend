@@ -13,6 +13,7 @@ exports.JobsController = void 0;
 var common_1 = require("@nestjs/common");
 var jwt_auth_guard_1 = require("src/auth/jwt-auth.guard");
 var customize_1 = require("src/decorator/customize");
+var cache_manager_1 = require("@nestjs/cache-manager");
 var JobsController = /** @class */ (function () {
     function JobsController(jobsService) {
         this.jobsService = jobsService;
@@ -44,6 +45,7 @@ var JobsController = /** @class */ (function () {
         __param(0, common_1.Body()), __param(1, customize_1.User())
     ], JobsController.prototype, "create");
     __decorate([
+        common_1.CacheTTL(60),
         common_1.Get(),
         __param(0, common_1.Query())
     ], JobsController.prototype, "findAll");
@@ -71,6 +73,7 @@ var JobsController = /** @class */ (function () {
         common_1.Get('/record/count')
     ], JobsController.prototype, "countJobs");
     JobsController = __decorate([
+        common_1.UseInterceptors(cache_manager_1.CacheInterceptor),
         common_1.Controller('jobs')
     ], JobsController);
     return JobsController;

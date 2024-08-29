@@ -20,6 +20,7 @@ const update_job_dto_1 = require("./dto/update-job.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const customize_1 = require("../decorator/customize");
 const search_job_dto_1 = require("./dto/search-job.dto");
+const cache_manager_1 = require("@nestjs/cache-manager");
 let JobsController = class JobsController {
     constructor(jobsService) {
         this.jobsService = jobsService;
@@ -56,6 +57,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], JobsController.prototype, "create", null);
 __decorate([
+    (0, common_1.CacheTTL)(60),
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
@@ -101,6 +103,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], JobsController.prototype, "countJobs", null);
 JobsController = __decorate([
+    (0, common_1.UseInterceptors)(cache_manager_1.CacheInterceptor),
     (0, common_1.Controller)('jobs'),
     __metadata("design:paramtypes", [jobs_service_1.JobsService])
 ], JobsController);

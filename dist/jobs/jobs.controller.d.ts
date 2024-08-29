@@ -38,21 +38,7 @@ export declare class JobsController {
     } & Required<{
         _id: import("mongoose").Types.ObjectId;
     }>>;
-    findAll(qs: string): Promise<{
-        meta: {
-            current: number;
-            pageSize: number;
-            pages: number;
-            total: number;
-        };
-        result: Omit<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
-            _id: import("mongoose").Types.ObjectId;
-        }> & import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
-            _id: import("mongoose").Types.ObjectId;
-        } & Required<{
-            _id: import("mongoose").Types.ObjectId;
-        }>, never>[];
-    }>;
+    findAll(qs: string): Promise<any>;
     findOne(id: string): Promise<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
         _id: import("mongoose").Types.ObjectId;
     }> & import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {

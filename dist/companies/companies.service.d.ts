@@ -15,6 +15,11 @@ export declare class CompaniesService {
     } & Required<{
         _id: mongoose.Types.ObjectId;
     }>>;
+    getAll(): Promise<(mongoose.FlattenMaps<mongoose.Document<unknown, {}, Company> & Company & {
+        _id: mongoose.Types.ObjectId;
+    }> & Required<{
+        _id: mongoose.Types.ObjectId;
+    }>)[]>;
     findAll(qs: any): Promise<{
         meta: {
             current: number;

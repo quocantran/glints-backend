@@ -33,6 +33,9 @@ let CompaniesService = class CompaniesService {
             } }));
         return newCompany;
     }
+    async getAll() {
+        return await this.companyModel.find().lean().exec();
+    }
     async findAll(qs) {
         const { filter, sort, population } = (0, api_query_params_1.default)(qs);
         delete filter.current;
@@ -89,7 +92,10 @@ let CompaniesService = class CompaniesService {
     async findOne(id) {
         if (mongoose_2.default.Types.ObjectId.isValid(id) === false)
             throw new common_1.NotFoundException('not found company');
-        const company = await this.companyModel.findOne({ _id: id });
+        const company = await this.companyModel.findOne({
+            _id: id,
+            isDeleted: false,
+        });
         if (!company)
             throw new common_1.NotFoundException('not found company');
         return company;

@@ -67,6 +67,9 @@ var gatewaies_module_1 = require("./gatewaies/gatewaies.module");
 var chats_module_1 = require("./chats/chats.module");
 var notifications_module_1 = require("./notifications/notifications.module");
 var microservices_1 = require("@nestjs/microservices");
+var elasticsearchs_module_1 = require("./elasticsearchs/elasticsearchs.module");
+var cache_manager_1 = require("@nestjs/cache-manager");
+var redisStore = require("cache-manager-redis-store");
 var AppModule = /** @class */ (function () {
     function AppModule() {
     }
@@ -89,6 +92,11 @@ var AppModule = /** @class */ (function () {
                         });
                     }); },
                     inject: [config_1.ConfigService]
+                }),
+                cache_manager_1.CacheModule.register({
+                    store: redisStore,
+                    ttl: 60 * 1000,
+                    isGlobal: true
                 }),
                 config_1.ConfigModule.forRoot({
                     isGlobal: true
@@ -128,6 +136,7 @@ var AppModule = /** @class */ (function () {
                         }
                     },
                 ]),
+                elasticsearchs_module_1.ElasticsearchsModule,
             ],
             controllers: [app_controller_1.AppController],
             providers: [app_service_1.AppService],

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { CacheStore, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -22,6 +22,11 @@ import { GatewaiesModule } from './gatewaies/gatewaies.module';
 import { ChatsModule } from './chats/chats.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ElasticsearchsModule } from './elasticsearchs/elasticsearchs.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import * as redisStore from 'cache-manager-redis-store';
+import type { RedisClientOptions } from 'redis';
+
 @Module({
   imports: [
     UsersModule,
@@ -38,6 +43,18 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 
       inject: [ConfigService],
     }),
+
+    CacheModule.registerAsync<RedisClientOptions>({
+      useFactory: async (configService: ConfigService) => ({
+        store: redisStore as unknown as CacheStore,
+        ttl: 60 * 1000,
+        host: configService.get<string>('REDIS_HOST'),
+        port: configService.get<number>('REDIS_PORT'),
+      }),
+      inject: [ConfigService],
+      isGlobal: true,
+    }),
+
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -78,6 +95,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
       },
     ]),
+    ElasticsearchsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

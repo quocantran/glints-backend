@@ -21,16 +21,29 @@ const company_schema_1 = require("./schemas/company.schema");
 const mongoose_1 = require("@nestjs/mongoose");
 const api_query_params_1 = __importDefault(require("api-query-params"));
 const mongoose_2 = __importDefault(require("mongoose"));
+const microservices_1 = require("@nestjs/microservices");
+const cache_manager_1 = require("@nestjs/cache-manager");
 let CompaniesService = class CompaniesService {
-    constructor(companyModel) {
+    constructor(companyModel, client, cacheManager) {
         this.companyModel = companyModel;
+        this.client = client;
+        this.cacheManager = cacheManager;
     }
     async create(createCompanyDto, user) {
+        const companyExist = await this.companyModel.findOne({
+            name: createCompanyDto.name,
+        });
+        if (companyExist)
+            throw new common_1.BadRequestException('Company already exist');
         const newCompany = await this.companyModel.create(Object.assign(Object.assign({}, createCompanyDto), { createdBy: {
                 _id: user._id,
                 name: user.name,
                 email: user.email,
             } }));
+        this.client.emit('createDocument', Buffer.from(JSON.stringify({
+            index: 'companies',
+            document: newCompany,
+        })));
         return newCompany;
     }
     async getAll() {
@@ -82,16 +95,20 @@ let CompaniesService = class CompaniesService {
         const userFollow = companyExist.usersFollow.some((item) => item.toString() === user._id.toString());
         if (!userFollow)
             throw new common_1.BadRequestException('User not follow company');
-        console.log(userFollow);
-        console.log(user._id);
         await this.companyModel
             .findByIdAndUpdate(company.companyId, { $pull: { usersFollow: user._id.toString() } }, { new: true })
             .exec();
         return user._id;
     }
     async findOne(id) {
-        if (mongoose_2.default.Types.ObjectId.isValid(id) === false)
+        if (mongoose_2.default.Types.ObjectId.isValid(id) === false) {
             throw new common_1.NotFoundException('not found company');
+        }
+        const cacheKey = `company-${id}`;
+        const cacheData = (await this.cacheManager.get(cacheKey));
+        if (cacheData) {
+            return JSON.parse(cacheData);
+        }
         const company = await this.companyModel.findOne({
             _id: id,
             isDeleted: false,
@@ -106,9 +123,18 @@ let CompaniesService = class CompaniesService {
                 name: user.name,
                 email: user.email,
             } }));
+        this.client.emit('createDocument', Buffer.from(JSON.stringify({
+            index: 'companies',
+            document: updatedCompany,
+        })));
         return updatedCompany;
     }
     async remove(id, user) {
+        const company = await this.companyModel.findOne({
+            _id: id,
+        });
+        if (!company)
+            throw new common_1.BadRequestException('Company not found');
         await this.companyModel.updateOne({ _id: id }, {
             deletedBy: {
                 _id: user._id,
@@ -116,6 +142,10 @@ let CompaniesService = class CompaniesService {
                 email: user.email,
             },
         });
+        this.client.emit('deleteDocument', Buffer.from(JSON.stringify({
+            index: 'companies',
+            id: id,
+        })));
         return this.companyModel.softDelete({
             _id: id,
         });
@@ -127,7 +157,10 @@ let CompaniesService = class CompaniesService {
 CompaniesService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(company_schema_1.Company.name)),
-    __metadata("design:paramtypes", [Object])
+    __param(1, (0, common_1.Inject)('ELASTIC_SERVICE')),
+    __param(2, (0, common_1.Inject)('CACHE_MANAGER')),
+    __metadata("design:paramtypes", [Object, microservices_1.ClientProxy,
+        cache_manager_1.Cache])
 ], CompaniesService);
 exports.CompaniesService = CompaniesService;
 //# sourceMappingURL=companies.service.js.map

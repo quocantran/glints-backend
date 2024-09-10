@@ -75,7 +75,6 @@ let MyElasticsearchsService = class MyElasticsearchsService {
     }
     async createDocument(index, document) {
         const { _id } = document, body = __rest(document, ["_id"]);
-        console.log(_id);
         return await this.elasticsearchsService.index({
             index,
             id: _id,

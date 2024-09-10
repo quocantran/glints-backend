@@ -24,7 +24,7 @@ export class JobsService {
     @InjectModel(Job.name)
     private readonly jobModel: SoftDeleteModel<JobDocument>,
 
-    @Inject('RABBITMQ_SERVICE')
+    @Inject('NOTI_SERVICE')
     private readonly client: ClientProxy,
 
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -37,14 +37,19 @@ export class JobsService {
   async create(createJobDto: CreateJobDto, user: IUser) {
     const newJob = await this.jobModel.create(createJobDto);
 
-    this.client.emit('job_created', {
-      senderId: createJobDto.company._id,
-      content: `Công ty bạn đang theo dõi ${createJobDto.company.name} đã tạo mới công việc ${createJobDto.name}!`,
-      type: 'job',
-      options: {
-        jobId: newJob._id,
-      },
-    });
+    this.client.emit(
+      'job_created',
+      Buffer.from(
+        JSON.stringify({
+          senderId: createJobDto.company._id,
+          content: `Công ty bạn đang theo dõi ${createJobDto.company.name} đã tạo mới công việc ${createJobDto.name}!`,
+          type: 'job',
+          options: {
+            jobId: newJob._id,
+          },
+        }),
+      ),
+    );
 
     return newJob;
   }
@@ -75,7 +80,7 @@ export class JobsService {
       const limit = qs.pageSize ? parseInt(qs.pageSize) : 10;
       const totalPage = Math.ceil(totalRecord / limit);
       const skip = (qs.current - 1) * limit;
-      const current = +qs.current;
+      const current = +qs.current ? +qs.current : 1;
       const jobs = await this.jobModel
         .find(filter)
         .populate({
@@ -118,6 +123,14 @@ export class JobsService {
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Job not found');
+    }
+
+    const cacheKey = `job_${id}`;
+
+    const cacheValue = (await this.cacheManager.get(cacheKey)) as string;
+
+    if (cacheValue) {
+      return JSON.parse(cacheValue);
     }
 
     const job = await this.jobModel

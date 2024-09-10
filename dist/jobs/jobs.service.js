@@ -34,14 +34,14 @@ let JobsService = class JobsService {
     }
     async create(createJobDto, user) {
         const newJob = await this.jobModel.create(createJobDto);
-        this.client.emit('job_created', {
+        this.client.emit('job_created', Buffer.from(JSON.stringify({
             senderId: createJobDto.company._id,
             content: `Công ty bạn đang theo dõi ${createJobDto.company.name} đã tạo mới công việc ${createJobDto.name}!`,
             type: 'job',
             options: {
                 jobId: newJob._id,
             },
-        });
+        })));
         return newJob;
     }
     async findAll(qs) {
@@ -66,7 +66,7 @@ let JobsService = class JobsService {
             const limit = qs.pageSize ? parseInt(qs.pageSize) : 10;
             const totalPage = Math.ceil(totalRecord / limit);
             const skip = (qs.current - 1) * limit;
-            const current = +qs.current;
+            const current = +qs.current ? +qs.current : 1;
             const jobs = await this.jobModel
                 .find(filter)
                 .populate({
@@ -106,6 +106,11 @@ let JobsService = class JobsService {
     async findOne(id) {
         if (!mongoose_2.default.Types.ObjectId.isValid(id)) {
             throw new common_1.NotFoundException('Job not found');
+        }
+        const cacheKey = `job_${id}`;
+        const cacheValue = (await this.cacheManager.get(cacheKey));
+        if (cacheValue) {
+            return JSON.parse(cacheValue);
         }
         const job = await this.jobModel
             .findOne({ _id: id, isDeleted: 'false' })
@@ -163,7 +168,7 @@ let JobsService = class JobsService {
 JobsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(job_schema_1.Job.name)),
-    __param(1, (0, common_1.Inject)('RABBITMQ_SERVICE')),
+    __param(1, (0, common_1.Inject)('NOTI_SERVICE')),
     __param(2, (0, common_1.Inject)(cache_manager_1.CACHE_MANAGER)),
     __metadata("design:paramtypes", [Object, microservices_1.ClientProxy, Object])
 ], JobsService);

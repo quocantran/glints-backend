@@ -47,6 +47,8 @@ let JwtAuthGuard = class JwtAuthGuard extends (0, passport_1.AuthGuard)('jwt') {
             '/api/v1/notifications',
             '/api/v1/companies/follow',
             '/api/v1/companies/unfollow',
+            '/api/v1/comments',
+            '/api/v1/comments/:id',
         ];
         if (err || !user) {
             throw err || new common_1.UnauthorizedException('Token không hợp lệ!');

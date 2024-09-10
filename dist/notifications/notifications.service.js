@@ -56,15 +56,6 @@ let NotificationsService = class NotificationsService {
             result: notifications,
         };
     }
-    findOne(id) {
-        return `This action returns a #${id} notification`;
-    }
-    update(id, updateNotificationDto) {
-        return `This action updates a #${id} notification`;
-    }
-    remove(id) {
-        return `This action removes a #${id} notification`;
-    }
 };
 NotificationsService = __decorate([
     (0, common_1.Injectable)(),

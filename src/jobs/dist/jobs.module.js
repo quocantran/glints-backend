@@ -24,7 +24,7 @@ var JobsModule = /** @class */ (function () {
                 mongoose_1.MongooseModule.forFeature([{ name: job_schema_1.Job.name, schema: job_schema_1.JobSchema }]),
                 microservices_1.ClientsModule.register([
                     {
-                        name: 'RABBITMQ_SERVICE',
+                        name: 'NOTI_SERVICE',
                         transport: microservices_1.Transport.RMQ,
                         options: {
                             urls: ['amqp://localhost'],

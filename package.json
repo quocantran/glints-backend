@@ -70,6 +70,7 @@
     "@nestjs/cli": "9.4.2",
     "@nestjs/schematics": "9.1.0",
     "@nestjs/testing": "9.0.0",
+    "@types/amqplib": "^0.10.5",
     "@types/bcryptjs": "^2.4.6",
     "@types/cache-manager": "^4.0.1",
     "@types/cookie-parser": "^1.4.7",

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import {
   Ctx,
   MessagePattern,
@@ -18,11 +26,18 @@ export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 
   @MessagePattern('job_created')
-  create(
+  async create(
     @Payload() createNotificationDto: CreateNotificationDto,
     @Ctx() context: RmqContext,
   ) {
-    return this.notificationsService.create(createNotificationDto);
+    try {
+      return await this.notificationsService.create(createNotificationDto);
+    } catch (err) {
+      Logger.error('Error::::::', err);
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
+      channel.nack(originalMsg, false, false);
+    }
   }
 
   @Post('')
@@ -32,23 +47,5 @@ export class NotificationsController {
     @User() user: IUser,
   ) {
     return this.notificationsService.findAll(body, user);
-  }
-
-  @MessagePattern('findOneNotification')
-  findOne(@Payload() id: number) {
-    return this.notificationsService.findOne(id);
-  }
-
-  @MessagePattern('updateNotification')
-  update(@Payload() updateNotificationDto: UpdateNotificationDto) {
-    return this.notificationsService.update(
-      updateNotificationDto.id,
-      updateNotificationDto,
-    );
-  }
-
-  @MessagePattern('removeNotification')
-  remove(@Payload() id: number) {
-    return this.notificationsService.remove(id);
   }
 }

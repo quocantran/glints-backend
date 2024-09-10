@@ -53,13 +53,7 @@ export declare class CompaniesController {
             _id: import("mongoose").Types.ObjectId;
         }>, never>[];
     }>;
-    findOne(id: string): Promise<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/company.schema").Company> & import("./schemas/company.schema").Company & {
-        _id: import("mongoose").Types.ObjectId;
-    }> & import("mongoose").Document<unknown, {}, import("./schemas/company.schema").Company> & import("./schemas/company.schema").Company & {
-        _id: import("mongoose").Types.ObjectId;
-    } & Required<{
-        _id: import("mongoose").Types.ObjectId;
-    }>>;
+    findOne(id: string): Promise<any>;
     update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser): Promise<import("mongoose").UpdateWriteOpResult>;
     remove(id: string, user: IUser): Promise<{
         deleted: number;

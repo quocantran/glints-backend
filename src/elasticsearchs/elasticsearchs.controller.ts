@@ -1,17 +1,15 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Logger } from '@nestjs/common';
 import { MyElasticsearchsService } from './myElasticsearchs.service';
 import { SearchElasticsearchDto } from './dto/search-elasticsearch.dto';
 import { GetPaginateElasticsearchDto } from './dto/get-paginate-elasticsearch.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import {
+  ClientProxy,
+  Ctx,
+  EventPattern,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 
 @Controller('elasticsearchs')
 export class ElasticsearchsController {
@@ -29,10 +27,19 @@ export class ElasticsearchsController {
     return await this.elasticsearchsService.search(body);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete('/:index/:id')
-  async delete(@Param('index') index: string, @Param('id') id: string) {
-    return await this.elasticsearchsService.delete(index, id);
+  @MessagePattern('deleteDocument')
+  async delete(
+    @Payload() body: { index: string; id: string },
+    @Ctx() context: RmqContext,
+  ) {
+    try {
+      return await this.elasticsearchsService.delete(body.index, body.id);
+    } catch (err) {
+      Logger.error('Error::::::', err);
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
+      channel.nack(originalMsg, false, false);
+    }
   }
 
   @Get(':index/_mapping')
@@ -40,12 +47,21 @@ export class ElasticsearchsController {
     return await this.elasticsearchsService.getMapping(index);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Post('create')
-  async createDocument(@Body() body: { index: string; document: any }) {
-    return await this.elasticsearchsService.createDocument(
-      body.index,
-      body.document,
-    );
+  @MessagePattern('createDocument')
+  async createDocument(
+    @Payload() body: { index: string; document: any },
+    @Ctx() context: RmqContext,
+  ) {
+    try {
+      return await this.elasticsearchsService.createDocument(
+        body.index,
+        body.document,
+      );
+    } catch (err) {
+      Logger.error('Error::::::', err);
+      const channel = context.getChannelRef();
+      const originalMsg = context.getMessage();
+      channel.nack(originalMsg, false, false);
+    }
   }
 }

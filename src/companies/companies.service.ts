@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -13,15 +14,27 @@ import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { FollowCompanyDto } from './dto/follow-company.dto';
 import { MyElasticsearchsService } from 'src/elasticsearchs/myElasticsearchs.service';
+import { ClientProxy } from '@nestjs/microservices';
+import { Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class CompaniesService {
   constructor(
     @InjectModel(Company.name)
     private companyModel: SoftDeleteModel<CompanyDocument>,
+    @Inject('ELASTIC_SERVICE')
+    private readonly client: ClientProxy,
+
+    @Inject('CACHE_MANAGER') private readonly cacheManager: Cache,
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto, user: IUser) {
+    const companyExist = await this.companyModel.findOne({
+      name: createCompanyDto.name,
+    });
+
+    if (companyExist) throw new BadRequestException('Company already exist');
+
     const newCompany = await this.companyModel.create({
       ...createCompanyDto,
       createdBy: {
@@ -30,6 +43,16 @@ export class CompaniesService {
         email: user.email,
       },
     });
+    this.client.emit(
+      'createDocument',
+      Buffer.from(
+        JSON.stringify({
+          index: 'companies',
+          document: newCompany,
+        }),
+      ),
+    );
+
     return newCompany;
   }
 
@@ -102,10 +125,6 @@ export class CompaniesService {
 
     if (!userFollow) throw new BadRequestException('User not follow company');
 
-    console.log(userFollow);
-
-    console.log(user._id);
-
     await this.companyModel
       .findByIdAndUpdate(
         company.companyId,
@@ -118,8 +137,17 @@ export class CompaniesService {
   }
 
   async findOne(id: string) {
-    if (mongoose.Types.ObjectId.isValid(id) === false)
+    if (mongoose.Types.ObjectId.isValid(id) === false) {
       throw new NotFoundException('not found company');
+    }
+
+    const cacheKey = `company-${id}`;
+
+    const cacheData = (await this.cacheManager.get(cacheKey)) as string;
+
+    if (cacheData) {
+      return JSON.parse(cacheData);
+    }
 
     const company = await this.companyModel.findOne({
       _id: id,
@@ -143,10 +171,27 @@ export class CompaniesService {
         },
       },
     );
+
+    this.client.emit(
+      'createDocument',
+      Buffer.from(
+        JSON.stringify({
+          index: 'companies',
+          document: updatedCompany,
+        }),
+      ),
+    );
+
     return updatedCompany;
   }
 
   async remove(id: string, user: IUser) {
+    const company = await this.companyModel.findOne({
+      _id: id,
+    });
+
+    if (!company) throw new BadRequestException('Company not found');
+
     await this.companyModel.updateOne(
       { _id: id },
       {
@@ -156,6 +201,16 @@ export class CompaniesService {
           email: user.email,
         },
       },
+    );
+
+    this.client.emit(
+      'deleteDocument',
+      Buffer.from(
+        JSON.stringify({
+          index: 'companies',
+          id: id,
+        }),
+      ),
     );
 
     return this.companyModel.softDelete({

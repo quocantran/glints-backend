@@ -26,6 +26,7 @@ import { ElasticsearchsModule } from './elasticsearchs/elasticsearchs.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import type { RedisClientOptions } from 'redis';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -82,20 +83,52 @@ import type { RedisClientOptions } from 'redis';
     GatewaiesModule,
     ChatsModule,
     NotificationsModule,
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
-        name: 'RABBITMQ_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://localhost'],
-          queue: 'noti-queue',
-          queueOptions: {
-            durable: false,
+        name: 'NOTI_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RMQ_URL')],
+            queue: configService.get<string>('NOTI_QUEUE'),
+            noAck: false,
+            queueOptions: {
+              durable: true,
+              arguments: {
+                'x-message-ttl': 4000,
+                'x-dead-letter-exchange':
+                  configService.get<string>('EXCHANGE_DLX'),
+                'x-dead-letter-routing-key':
+                  configService.get<string>('ROUTING_KEY_DLX'),
+              },
+            },
           },
-        },
+        }),
+        inject: [ConfigService],
+      },
+      {
+        name: 'ELASTIC_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RMQ_URL')],
+            queue: configService.get<string>('ELASTIC_QUEUE'),
+            noAck: false,
+            queueOptions: {
+              durable: true,
+
+              deadLetterExchange: configService.get<string>('EXCHANGE_DLX'),
+              deadLetterRoutingKey:
+                configService.get<string>('ROUTING_KEY_DLX'),
+              messageTtl: 4000,
+            },
+          },
+        }),
+        inject: [ConfigService],
       },
     ]),
     ElasticsearchsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

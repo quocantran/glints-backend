@@ -26,7 +26,6 @@
 import { RmqContext } from '@nestjs/microservices';
 import { NotificationsService } from './notifications.service';
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { IUser } from 'src/users/users.interface';
 import { GetNotificationDto } from './dto/get-notification.dto';
 export declare class NotificationsController {
@@ -48,7 +47,4 @@ export declare class NotificationsController {
             _id: import("mongoose").Types.ObjectId;
         }>)[];
     }>;
-    findOne(id: number): string;
-    update(updateNotificationDto: UpdateNotificationDto): string;
-    remove(id: number): string;
 }

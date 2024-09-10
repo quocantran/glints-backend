@@ -13,12 +13,34 @@ const companies_service_1 = require("./companies.service");
 const companies_controller_1 = require("./companies.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const company_schema_1 = require("./schemas/company.schema");
+const microservices_1 = require("@nestjs/microservices");
+const config_1 = require("@nestjs/config");
 let CompaniesModule = CompaniesModule_1 = class CompaniesModule {
 };
 CompaniesModule = CompaniesModule_1 = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: company_schema_1.Company.name, schema: company_schema_1.CompanySchema }]),
+            microservices_1.ClientsModule.registerAsync([
+                {
+                    name: 'ELASTIC_SERVICE',
+                    useFactory: (configService) => ({
+                        transport: microservices_1.Transport.RMQ,
+                        options: {
+                            urls: [configService.get('RMQ_URL')],
+                            queue: configService.get('ELASTIC_QUEUE'),
+                            noAck: false,
+                            queueOptions: {
+                                durable: true,
+                                deadLetterExchange: configService.get('EXCHANGE_DLX'),
+                                deadLetterRoutingKey: configService.get('ROUTING_KEY_DLX'),
+                                messageTtl: 4000,
+                            },
+                        },
+                    }),
+                    inject: [config_1.ConfigService],
+                },
+            ]),
         ],
         controllers: [companies_controller_1.CompaniesController],
         providers: [companies_service_1.CompaniesService, CompaniesModule_1],

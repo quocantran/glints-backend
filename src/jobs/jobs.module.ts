@@ -4,21 +4,33 @@ import { JobsController } from './jobs.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Job, JobSchema } from './schemas/job.schema';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Job.name, schema: JobSchema }]),
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
-        name: 'RABBITMQ_SERVICE',
-        transport: Transport.RMQ,
-        options: {
-          urls: ['amqp://localhost'],
-          queue: 'noti-queue',
-          queueOptions: {
-            durable: false,
+        name: 'NOTI_SERVICE',
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.RMQ,
+          options: {
+            urls: [configService.get<string>('RMQ_URL')],
+            queue: configService.get<string>('NOTI_QUEUE'),
+            noAck: false,
+            queueOptions: {
+              durable: true,
+              arguments: {
+                'x-message-ttl': 4000,
+                'x-dead-letter-exchange':
+                  configService.get<string>('EXCHANGE_DLX'),
+                'x-dead-letter-routing-key':
+                  configService.get<string>('ROUTING_KEY_DLX'),
+              },
+            },
           },
-        },
+        }),
+        inject: [ConfigService],
       },
     ]),
   ],

@@ -17,7 +17,7 @@ const common_1 = require("@nestjs/common");
 const myElasticsearchs_service_1 = require("./myElasticsearchs.service");
 const search_elasticsearch_dto_1 = require("./dto/search-elasticsearch.dto");
 const get_paginate_elasticsearch_dto_1 = require("./dto/get-paginate-elasticsearch.dto");
-const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const microservices_1 = require("@nestjs/microservices");
 let ElasticsearchsController = class ElasticsearchsController {
     constructor(elasticsearchsService) {
         this.elasticsearchsService = elasticsearchsService;
@@ -28,14 +28,30 @@ let ElasticsearchsController = class ElasticsearchsController {
     async search(body) {
         return await this.elasticsearchsService.search(body);
     }
-    async delete(index, id) {
-        return await this.elasticsearchsService.delete(index, id);
+    async delete(body, context) {
+        try {
+            return await this.elasticsearchsService.delete(body.index, body.id);
+        }
+        catch (err) {
+            common_1.Logger.error('Error::::::', err);
+            const channel = context.getChannelRef();
+            const originalMsg = context.getMessage();
+            channel.nack(originalMsg, false, false);
+        }
     }
     async getMapping(index) {
         return await this.elasticsearchsService.getMapping(index);
     }
-    async createDocument(body) {
-        return await this.elasticsearchsService.createDocument(body.index, body.document);
+    async createDocument(body, context) {
+        try {
+            return await this.elasticsearchsService.createDocument(body.index, body.document);
+        }
+        catch (err) {
+            common_1.Logger.error('Error::::::', err);
+            const channel = context.getChannelRef();
+            const originalMsg = context.getMessage();
+            channel.nack(originalMsg, false, false);
+        }
     }
 };
 __decorate([
@@ -53,12 +69,11 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ElasticsearchsController.prototype, "search", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Delete)('/:index/:id'),
-    __param(0, (0, common_1.Param)('index')),
-    __param(1, (0, common_1.Param)('id')),
+    (0, microservices_1.MessagePattern)('deleteDocument'),
+    __param(0, (0, microservices_1.Payload)()),
+    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [Object, microservices_1.RmqContext]),
     __metadata("design:returntype", Promise)
 ], ElasticsearchsController.prototype, "delete", null);
 __decorate([
@@ -69,11 +84,11 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ElasticsearchsController.prototype, "getMapping", null);
 __decorate([
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Post)('create'),
-    __param(0, (0, common_1.Body)()),
+    (0, microservices_1.MessagePattern)('createDocument'),
+    __param(0, (0, microservices_1.Payload)()),
+    __param(1, (0, microservices_1.Ctx)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, microservices_1.RmqContext]),
     __metadata("design:returntype", Promise)
 ], ElasticsearchsController.prototype, "createDocument", null);
 ElasticsearchsController = __decorate([

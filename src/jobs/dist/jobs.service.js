@@ -284,7 +284,7 @@ var JobsService = /** @class */ (function () {
     JobsService = __decorate([
         common_1.Injectable(),
         __param(0, mongoose_1.InjectModel(job_schema_1.Job.name)),
-        __param(1, common_1.Inject('RABBITMQ_SERVICE')),
+        __param(1, common_1.Inject('NOTI_SERVICE')),
         __param(2, common_1.Inject(cache_manager_1.CACHE_MANAGER))
     ], JobsService);
     return JobsService;

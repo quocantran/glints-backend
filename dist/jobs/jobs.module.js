@@ -14,23 +14,33 @@ const jobs_controller_1 = require("./jobs.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const job_schema_1 = require("./schemas/job.schema");
 const microservices_1 = require("@nestjs/microservices");
+const config_1 = require("@nestjs/config");
 let JobsModule = JobsModule_1 = class JobsModule {
 };
 JobsModule = JobsModule_1 = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: job_schema_1.Job.name, schema: job_schema_1.JobSchema }]),
-            microservices_1.ClientsModule.register([
+            microservices_1.ClientsModule.registerAsync([
                 {
-                    name: 'RABBITMQ_SERVICE',
-                    transport: microservices_1.Transport.RMQ,
-                    options: {
-                        urls: ['amqp://localhost'],
-                        queue: 'noti-queue',
-                        queueOptions: {
-                            durable: false,
+                    name: 'NOTI_SERVICE',
+                    useFactory: (configService) => ({
+                        transport: microservices_1.Transport.RMQ,
+                        options: {
+                            urls: [configService.get('RMQ_URL')],
+                            queue: configService.get('NOTI_QUEUE'),
+                            noAck: false,
+                            queueOptions: {
+                                durable: true,
+                                arguments: {
+                                    'x-message-ttl': 4000,
+                                    'x-dead-letter-exchange': configService.get('EXCHANGE_DLX'),
+                                    'x-dead-letter-routing-key': configService.get('ROUTING_KEY_DLX'),
+                                },
+                            },
                         },
-                    },
+                    }),
+                    inject: [config_1.ConfigService],
                 },
             ]),
         ],

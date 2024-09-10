@@ -20,6 +20,7 @@ const update_company_dto_1 = require("./dto/update-company.dto");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const customize_1 = require("../decorator/customize");
 const follow_company_dto_1 = require("./dto/follow-company.dto");
+const cache_manager_1 = require("@nestjs/cache-manager");
 let CompaniesController = class CompaniesController {
     constructor(companiesService) {
         this.companiesService = companiesService;
@@ -66,6 +67,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CompaniesController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.CacheTTL)(60 * 10),
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -116,6 +118,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], CompaniesController.prototype, "countCompanies", null);
 CompaniesController = __decorate([
+    (0, common_1.UseInterceptors)(cache_manager_1.CacheInterceptor),
     (0, common_1.Controller)('companies'),
     __metadata("design:paramtypes", [companies_service_1.CompaniesService])
 ], CompaniesController);

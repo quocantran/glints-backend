@@ -57,6 +57,7 @@ const microservices_1 = require("@nestjs/microservices");
 const elasticsearchs_module_1 = require("./elasticsearchs/elasticsearchs.module");
 const cache_manager_1 = require("@nestjs/cache-manager");
 const redisStore = __importStar(require("cache-manager-redis-store"));
+const comments_module_1 = require("./comments/comments.module");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
@@ -109,20 +110,48 @@ AppModule = __decorate([
             gatewaies_module_1.GatewaiesModule,
             chats_module_1.ChatsModule,
             notifications_module_1.NotificationsModule,
-            microservices_1.ClientsModule.register([
+            microservices_1.ClientsModule.registerAsync([
                 {
-                    name: 'RABBITMQ_SERVICE',
-                    transport: microservices_1.Transport.RMQ,
-                    options: {
-                        urls: ['amqp://localhost'],
-                        queue: 'noti-queue',
-                        queueOptions: {
-                            durable: false,
+                    name: 'NOTI_SERVICE',
+                    useFactory: (configService) => ({
+                        transport: microservices_1.Transport.RMQ,
+                        options: {
+                            urls: [configService.get('RMQ_URL')],
+                            queue: configService.get('NOTI_QUEUE'),
+                            noAck: false,
+                            queueOptions: {
+                                durable: true,
+                                arguments: {
+                                    'x-message-ttl': 4000,
+                                    'x-dead-letter-exchange': configService.get('EXCHANGE_DLX'),
+                                    'x-dead-letter-routing-key': configService.get('ROUTING_KEY_DLX'),
+                                },
+                            },
                         },
-                    },
+                    }),
+                    inject: [config_1.ConfigService],
+                },
+                {
+                    name: 'ELASTIC_SERVICE',
+                    useFactory: (configService) => ({
+                        transport: microservices_1.Transport.RMQ,
+                        options: {
+                            urls: [configService.get('RMQ_URL')],
+                            queue: configService.get('ELASTIC_QUEUE'),
+                            noAck: false,
+                            queueOptions: {
+                                durable: true,
+                                deadLetterExchange: configService.get('EXCHANGE_DLX'),
+                                deadLetterRoutingKey: configService.get('ROUTING_KEY_DLX'),
+                                messageTtl: 4000,
+                            },
+                        },
+                    }),
+                    inject: [config_1.ConfigService],
                 },
             ]),
             elasticsearchs_module_1.ElasticsearchsModule,
+            comments_module_1.CommentsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

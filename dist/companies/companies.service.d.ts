@@ -5,9 +5,13 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import { FollowCompanyDto } from './dto/follow-company.dto';
+import { ClientProxy } from '@nestjs/microservices';
+import { Cache } from '@nestjs/cache-manager';
 export declare class CompaniesService {
     private companyModel;
-    constructor(companyModel: SoftDeleteModel<CompanyDocument>);
+    private readonly client;
+    private readonly cacheManager;
+    constructor(companyModel: SoftDeleteModel<CompanyDocument>, client: ClientProxy, cacheManager: Cache);
     create(createCompanyDto: CreateCompanyDto, user: IUser): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Company> & Company & {
         _id: mongoose.Types.ObjectId;
     }> & mongoose.Document<unknown, {}, Company> & Company & {
@@ -37,13 +41,7 @@ export declare class CompaniesService {
     }>;
     followCompany(company: FollowCompanyDto, user: IUser): Promise<string>;
     unfollowCompany(company: FollowCompanyDto, user: IUser): Promise<string>;
-    findOne(id: string): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Company> & Company & {
-        _id: mongoose.Types.ObjectId;
-    }> & mongoose.Document<unknown, {}, Company> & Company & {
-        _id: mongoose.Types.ObjectId;
-    } & Required<{
-        _id: mongoose.Types.ObjectId;
-    }>>;
+    findOne(id: string): Promise<any>;
     update(id: string, updateCompanyDto: UpdateCompanyDto, user: IUser): Promise<mongoose.UpdateWriteOpResult>;
     remove(id: string, user: IUser): Promise<{
         deleted: number;

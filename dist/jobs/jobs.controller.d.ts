@@ -39,13 +39,7 @@ export declare class JobsController {
         _id: import("mongoose").Types.ObjectId;
     }>>;
     findAll(qs: string): Promise<any>;
-    findOne(id: string): Promise<import("mongoose").Document<unknown, {}, import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
-        _id: import("mongoose").Types.ObjectId;
-    }> & import("mongoose").Document<unknown, {}, import("./schemas/job.schema").Job> & import("./schemas/job.schema").Job & {
-        _id: import("mongoose").Types.ObjectId;
-    } & Required<{
-        _id: import("mongoose").Types.ObjectId;
-    }>>;
+    findOne(id: string): Promise<any>;
     update(id: string, updateJobDto: UpdateJobDto, user: IUser): Promise<import("mongoose").UpdateWriteOpResult>;
     remove(id: string): Promise<{
         deleted: number;

@@ -30,13 +30,7 @@ export declare class JobsService {
     }> & Required<{
         _id: mongoose.Types.ObjectId;
     }>)[]>;
-    findOne(id: string): Promise<mongoose.Document<unknown, {}, mongoose.Document<unknown, {}, Job> & Job & {
-        _id: mongoose.Types.ObjectId;
-    }> & mongoose.Document<unknown, {}, Job> & Job & {
-        _id: mongoose.Types.ObjectId;
-    } & Required<{
-        _id: mongoose.Types.ObjectId;
-    }>>;
+    findOne(id: string): Promise<any>;
     update(id: string, updateJobDto: UpdateJobDto, user: IUser): Promise<mongoose.UpdateWriteOpResult>;
     remove(id: string): Promise<{
         deleted: number;

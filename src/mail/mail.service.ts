@@ -1,15 +1,22 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JobsService } from 'src/jobs/jobs.service';
 import { SubscribersService } from 'src/subscribers/subscribers.service';
 
 @Injectable()
 export class MailService {
-  constructor(private mailerService: MailerService, private readonly subscriberService: SubscribersService, private readonly jobsService: JobsService) { }
+  constructor(
+    private mailerService: MailerService,
+    private readonly subscriberService: SubscribersService,
+    private readonly jobsService: JobsService,
+    private configService: ConfigService,
+  ) {}
 
   async sendMail(email: string, token: string) {
-
-    const linkVerify = `https://glints-backend.vercel.app/api/v1/users/password/forgot-password?token=${token}`;
+    const linkVerify = `${this.configService.get<string>(
+      'URL_BACKEND',
+    )}/api/v1/users/password/forgot-password?token=${token}`;
 
     await this.mailerService.sendMail({
       to: email,
@@ -42,7 +49,7 @@ export class MailService {
       });
     }
 
-    return "Mail sent";
+    return 'Mail sent';
   }
   async sendPasswordResetMail(email: string, password: string) {
     await this.mailerService.sendMail({

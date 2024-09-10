@@ -24,7 +24,6 @@
 /// <reference types="mongoose" />
 /// <reference types="mongoose/types/inferschematype" />
 import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Notification, NotificationDocument } from './schemas/notification.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { AppGateway } from 'src/gatewaies/app.gateway';
@@ -54,7 +53,4 @@ export declare class NotificationsService {
             _id: import("mongoose").Types.ObjectId;
         }>)[];
     }>;
-    findOne(id: number): string;
-    update(id: number, updateNotificationDto: UpdateNotificationDto): string;
-    remove(id: number): string;
 }

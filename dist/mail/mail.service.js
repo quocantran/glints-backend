@@ -12,16 +12,18 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MailService = void 0;
 const mailer_1 = require("@nestjs-modules/mailer");
 const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
 const jobs_service_1 = require("../jobs/jobs.service");
 const subscribers_service_1 = require("../subscribers/subscribers.service");
 let MailService = class MailService {
-    constructor(mailerService, subscriberService, jobsService) {
+    constructor(mailerService, subscriberService, jobsService, configService) {
         this.mailerService = mailerService;
         this.subscriberService = subscriberService;
         this.jobsService = jobsService;
+        this.configService = configService;
     }
     async sendMail(email, token) {
-        const linkVerify = `https://glints-backend.vercel.app/api/v1/users/password/forgot-password?token=${token}`;
+        const linkVerify = `${this.configService.get('URL_BACKEND')}/api/v1/users/password/forgot-password?token=${token}`;
         await this.mailerService.sendMail({
             to: email,
             from: 'Support Group*',
@@ -49,7 +51,7 @@ let MailService = class MailService {
                 },
             });
         }
-        return "Mail sent";
+        return 'Mail sent';
     }
     async sendPasswordResetMail(email, password) {
         await this.mailerService.sendMail({
@@ -66,7 +68,10 @@ let MailService = class MailService {
 };
 MailService = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [mailer_1.MailerService, subscribers_service_1.SubscribersService, jobs_service_1.JobsService])
+    __metadata("design:paramtypes", [mailer_1.MailerService,
+        subscribers_service_1.SubscribersService,
+        jobs_service_1.JobsService,
+        config_1.ConfigService])
 ], MailService);
 exports.MailService = MailService;
 //# sourceMappingURL=mail.service.js.map

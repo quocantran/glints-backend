@@ -125,7 +125,7 @@ var AppModule = /** @class */ (function () {
                 notifications_module_1.NotificationsModule,
                 microservices_1.ClientsModule.register([
                     {
-                        name: 'RABBITMQ_SERVICE',
+                        name: 'NOTI_SERVICE',
                         transport: microservices_1.Transport.RMQ,
                         options: {
                             urls: ['amqp://localhost'],

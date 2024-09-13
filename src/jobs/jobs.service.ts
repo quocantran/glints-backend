@@ -37,19 +37,14 @@ export class JobsService {
   async create(createJobDto: CreateJobDto, user: IUser) {
     const newJob = await this.jobModel.create(createJobDto);
 
-    this.client.emit(
-      'job_created',
-      Buffer.from(
-        JSON.stringify({
-          senderId: createJobDto.company._id,
-          content: `Công ty bạn đang theo dõi ${createJobDto.company.name} đã tạo mới công việc ${createJobDto.name}!`,
-          type: 'job',
-          options: {
-            jobId: newJob._id,
-          },
-        }),
-      ),
-    );
+    this.client.emit('job_created', {
+      senderId: createJobDto.company._id,
+      content: `Công ty bạn đang theo dõi ${createJobDto.company.name} đã tạo mới công việc ${createJobDto.name}!`,
+      type: 'job',
+      options: {
+        jobId: newJob._id,
+      },
+    });
 
     return newJob;
   }

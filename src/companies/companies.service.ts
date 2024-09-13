@@ -43,15 +43,10 @@ export class CompaniesService {
         email: user.email,
       },
     });
-    this.client.emit(
-      'createDocument',
-      Buffer.from(
-        JSON.stringify({
-          index: 'companies',
-          document: newCompany,
-        }),
-      ),
-    );
+    this.client.emit('createDocument', {
+      index: 'companies',
+      document: newCompany,
+    });
 
     return newCompany;
   }
@@ -172,15 +167,10 @@ export class CompaniesService {
       },
     );
 
-    this.client.emit(
-      'createDocument',
-      Buffer.from(
-        JSON.stringify({
-          index: 'companies',
-          document: updatedCompany,
-        }),
-      ),
-    );
+    this.client.emit('createDocument', {
+      index: 'companies',
+      document: updatedCompany,
+    });
 
     return updatedCompany;
   }
@@ -203,15 +193,10 @@ export class CompaniesService {
       },
     );
 
-    this.client.emit(
-      'deleteDocument',
-      Buffer.from(
-        JSON.stringify({
-          index: 'companies',
-          id: id,
-        }),
-      ),
-    );
+    this.client.emit('deleteDocument', {
+      index: 'companies',
+      id: id,
+    });
 
     return this.companyModel.softDelete({
       _id: id,

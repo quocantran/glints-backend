@@ -37,7 +37,7 @@ export class JobsController {
     return this.jobsService.findAll(qs);
   }
 
-  @CacheTTL(60 * 10)
+  @CacheTTL(60)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.jobsService.findOne(id);

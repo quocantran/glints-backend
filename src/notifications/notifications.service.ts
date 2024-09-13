@@ -28,7 +28,7 @@ export class NotificationsService {
       createNotificationDto.senderId,
     );
 
-    await Promise.all(
+    return Promise.all(
       company.usersFollow.map(async (userId) => {
         const newNotifi = {
           ...createNotificationDto,

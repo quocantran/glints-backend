@@ -32,21 +32,37 @@ export class MailService {
   }
 
   async sendMailToSubscribers() {
-    const subscribers = await this.subscriberService.getAll();
+    try {
+      const subscribers = await this.subscriberService.getAll();
+      const sendMailPromises = subscribers.map(async (subscriber) => {
+        const skills = subscriber.skills.map((skill: any) => skill.name);
+        const jobs = await this.jobsService.findJobsBySkillName(skills);
 
-    for (const subscriber of subscribers) {
-      const skills = subscriber.skills.map((skill: any) => skill.name);
-      const jobs = await this.jobsService.findJobsBySkillName(skills);
-      await this.mailerService.sendMail({
-        to: subscriber.email,
-        from: 'Support Group*',
-        subject: 'Gợi ý công việc dành cho bạn',
-        template: 'jobs.template.hbs',
-        context: {
-          name: subscriber.email,
-          jobs: jobs,
-        },
+        const jobsFormatted = jobs.map((job) => {
+          return {
+            ...job,
+            jobUrl: `${this.configService.get<string>('URL_FRONTEND')}/jobs/${
+              job._id
+            }`,
+          };
+        });
+
+        await this.mailerService.sendMail({
+          to: subscriber.email,
+          from: 'Support Group*',
+          subject: 'Gợi ý công việc dành cho bạn',
+          template: 'jobs.template.hbs',
+          context: {
+            name: subscriber.email,
+            jobs: jobsFormatted,
+            url: this.configService.get<string>('URL_FRONTEND'),
+          },
+        });
       });
+
+      await Promise.all(sendMailPromises);
+    } catch (e) {
+      console.log(e);
     }
 
     return 'Mail sent';

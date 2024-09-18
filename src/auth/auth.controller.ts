@@ -7,6 +7,7 @@ import {
   Req,
   Get,
   Logger,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { AuthService } from './auth.service';
@@ -23,12 +24,14 @@ import {
   ThrottlerGuard,
 } from '@nestjs/throttler';
 import { AuthGuard } from '@nestjs/passport';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private roleSrvice: RolesService,
+    private readonly configService: ConfigService,
   ) {}
 
   @Public()
@@ -49,9 +52,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('/account')
   async handleAccount(@User() user: IUser) {
-    const data = (await this.roleSrvice.findOne(user.role._id)) as any;
-    user.permissions = data.permissions;
-    return { user };
+    return await this.authService.handleAccount(user);
   }
 
   @Get('/google')
@@ -68,7 +69,9 @@ export class AuthController {
   ) {
     const result = await this.authService.googleLogin(req, res);
     res.redirect(
-      `http://localhost:3000/auth/google?token=${result.access_token}`,
+      `${this.configService.get<string>('URL_FRONTEND')}/auth/google?token=${
+        result.access_token
+      }`,
     );
   }
 
@@ -78,6 +81,10 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const refreshToken = req.cookies['refresh_token'];
+    if (!refreshToken) {
+      throw new BadRequestException('Token không hợp lệ!');
+    }
+
     return this.authService.generateNewToken(refreshToken, res);
   }
 

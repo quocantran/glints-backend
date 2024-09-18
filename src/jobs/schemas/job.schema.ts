@@ -27,6 +27,9 @@ export class Job {
     address: string;
   };
 
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  paidUsers: mongoose.Schema.Types.ObjectId[];
+
   @Prop()
   salary: number;
 

@@ -107,6 +107,13 @@ export class JobsService {
     }
   }
 
+  async addPaidUser(jobId: string, userId: string) {
+    return await this.jobModel.updateOne(
+      { _id: jobId },
+      { $push: { paidUsers: userId } },
+    );
+  }
+
   async findJobsBySkillName(names: string[]) {
     const regexNames = names.map((name) => new RegExp(name, 'i'));
     return await this.jobModel

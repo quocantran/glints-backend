@@ -35,9 +35,10 @@ async function bootstrapHttpServer() {
   app.use(helmet());
 
   app.useWebSocketAdapter(new IoAdapter(app));
+  console.log(configService.get<string>('URL_FRONTEND'));
 
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: [configService.get<string>('URL_FRONTEND')],
     credentials: true,
   });
   const PORT = configService.get<string>('PORT');

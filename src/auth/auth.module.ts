@@ -30,11 +30,29 @@ import { GoogleStrategy } from './passport/google.strategy';
       }),
       inject: [ConfigService],
     }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_REFRESH_SECRET'),
+        signOptions: {
+          expiresIn:
+            ms(configService.get<string>('JWT_REFRESH_EXPIRES_IN')) / 1000,
+        },
+      }),
+      inject: [ConfigService],
+      global: true,
+    }),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy, RolesService, GoogleStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    RolesService,
+    GoogleStrategy,
+  ],
   exports: [AuthService, LocalStrategy],
 })
 export class AuthModule {}

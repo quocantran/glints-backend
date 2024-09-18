@@ -136,14 +136,6 @@ export class CompaniesService {
       throw new NotFoundException('not found company');
     }
 
-    const cacheKey = `company-${id}`;
-
-    const cacheData = (await this.cacheManager.get(cacheKey)) as string;
-
-    if (cacheData) {
-      return JSON.parse(cacheData);
-    }
-
     const company = await this.companyModel.findOne({
       _id: id,
       isDeleted: false,

@@ -8,6 +8,9 @@ import {
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { CompaniesService } from 'src/companies/companies.service';
+import { JobsService } from 'src/jobs/jobs.service';
+import { PaymentsService } from 'src/payments/payments.service';
+import { ResumesService } from 'src/resumes/resumes.service';
 
 @WebSocketGateway({
   cors: {
@@ -21,11 +24,12 @@ export class AppGateway
 {
   @WebSocketServer() server: Server;
 
-  private companieSerivce: CompaniesService;
-
-  constructor(companiesService: CompaniesService) {
-    this.companieSerivce = companiesService;
-  }
+  constructor(
+    private readonly jobsService: JobsService,
+    private readonly companieSerivce: CompaniesService,
+    private readonly resumesService: ResumesService,
+    private readonly paymentsService: PaymentsService,
+  ) {}
 
   private clients: Map<string, Socket> = new Map();
 
@@ -90,7 +94,7 @@ export class AppGateway
             message: messages,
             companyName: company.name,
             jobId: payload.jobId,
-            type : 'job'
+            type: 'job',
           });
           console.log(`Notification sent to userId: ${userId}`);
         } else {
@@ -98,5 +102,22 @@ export class AppGateway
         }
       });
     }
+  }
+
+  @SubscribeMessage('checkPayment')
+  async handleCheckPayment(client: Socket, payload: any): Promise<void> {
+    const { code, amount } = payload;
+    const result = await this.paymentsService.checkPayment({ code, amount });
+
+    client.emit('checkPayment', result);
+  }
+
+  @SubscribeMessage('transactionSuccess')
+  async handleTransactionSuccess(client: Socket, payload: any): Promise<void> {
+    const { jobId, userId } = payload;
+    await this.jobsService.addPaidUser(jobId, userId);
+    const resumes = await this.resumesService.findAllByJob(jobId);
+
+    client.emit('transactionSuccess', resumes);
   }
 }

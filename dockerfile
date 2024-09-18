@@ -13,7 +13,7 @@ COPY . .
 
 RUN npm run build
 
-# Stage 2: Create the final image
+#Create the final image
 FROM node:18-alpine
 
 WORKDIR /app

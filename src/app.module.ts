@@ -27,6 +27,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import * as redisStore from 'cache-manager-redis-store';
 import type { RedisClientOptions } from 'redis';
 import { CommentsModule } from './comments/comments.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -129,6 +130,7 @@ import { CommentsModule } from './comments/comments.module';
     ]),
     ElasticsearchsModule,
     CommentsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

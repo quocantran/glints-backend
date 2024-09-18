@@ -18,9 +18,7 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUser } from 'src/users/users.interface';
 import { User } from 'src/decorator/customize';
 import { FollowCompanyDto } from './dto/follow-company.dto';
-import { CacheInterceptor } from '@nestjs/cache-manager';
 
-@UseInterceptors(CacheInterceptor)
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
@@ -31,12 +29,12 @@ export class CompaniesController {
     return this.companiesService.create(createCompanyDto, user);
   }
 
+  @CacheTTL(60)
   @Get()
   findAll(@Query() query: string) {
     return this.companiesService.findAll(query);
   }
 
-  @CacheTTL(60 * 10)
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(id);

@@ -105,6 +105,10 @@ export class ResumesService {
     }
   }
 
+  async findAllByJob(jobId: string) {
+    return await this.resumeModel.find({ jobId: jobId }).sort('-createdAt');
+  }
+
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id))
       throw new NotFoundException('not found resume');

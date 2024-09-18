@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Res } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
@@ -72,6 +72,7 @@ export class AuthService {
     const refreshToken = this.generateRefreshToken(payload);
 
     await this.usersService.updateUserToken(refreshToken, _id);
+
     res.cookie('refresh_token', refreshToken, {
       httpOnly: true,
       maxAge:
@@ -82,7 +83,10 @@ export class AuthService {
 
     res.cookie('userId', _id);
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: ms(this.configService.get<string>('JWT_EXPIRES_IN')) / 1000,
+      }),
       user: {
         _id,
         email,
@@ -190,15 +194,46 @@ export class AuthService {
     res.cookie('userId', currentUser._id);
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, {
+        secret: this.configService.get<string>('JWT_SECRET'),
+        expiresIn: ms(this.configService.get<string>('JWT_EXPIRES_IN')) / 1000,
+      }),
     };
+  }
+
+  async handleAccount(user: IUser) {
+    const currUser = await this.userModel.findOne({ _id: user._id });
+    const role = (await this.roleModel
+      .findOne({ _id: currUser.role })
+      .populate({
+        path: 'permissions',
+        select: {
+          name: 1,
+          _id: 1,
+          apiPath: 1,
+          method: 1,
+          module: 1,
+        },
+      })) as any;
+
+    user.permissions = role.permissions;
+    user.role = {
+      _id: role._id,
+      name: role.name,
+    };
+
+    return { user };
   }
 
   generateNewToken = async (refreshToken: string, res: Response) => {
     try {
-      const payload = this.jwtService.verify(refreshToken, {
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
         secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
       });
+
+      if (!payload) {
+        throw new BadRequestException('Invalid refresh token');
+      }
 
       const user = await this.userModel.findOne({ refreshToken }).populate({
         path: 'role',
@@ -243,7 +278,11 @@ export class AuthService {
         });
 
         return {
-          access_token: this.jwtService.sign(newPayload),
+          access_token: this.jwtService.sign(newPayload, {
+            secret: this.configService.get<string>('JWT_SECRET'),
+            expiresIn:
+              ms(this.configService.get<string>('JWT_EXPIRES_IN')) / 1000,
+          }),
           user: {
             _id,
             email,
@@ -261,6 +300,7 @@ export class AuthService {
   logout = async (user: IUser, res: Response) => {
     await this.usersService.updateUserToken('', user._id);
     res.clearCookie('refresh_token');
+    res.clearCookie('userId');
     return 'Logout success!';
   };
 }

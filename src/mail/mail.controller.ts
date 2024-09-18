@@ -5,7 +5,7 @@ import { Cron } from '@nestjs/schedule';
 
 @Controller('mail')
 export class MailController {
-  constructor(private readonly mailService: MailService) { }
+  constructor(private readonly mailService: MailService) {}
 
   @Get('/subscribers')
   @Cron('0 0 * * 0')

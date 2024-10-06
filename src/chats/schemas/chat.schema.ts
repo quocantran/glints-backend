@@ -4,49 +4,43 @@ export type ChatDocument = HydratedDocument<Chat>;
 
 @Schema({ timestamps: true })
 export class Chat {
-    @Prop()
-    name: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: mongoose.Schema.Types.ObjectId;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
-    userId: mongoose.Schema.Types.ObjectId;
+  @Prop()
+  content: string;
 
-    @Prop()
-    content: string;
+  @Prop()
+  fileUrl: string;
 
-    @Prop({ enum: ['text', 'image'] })
-    type: string;
+  @Prop()
+  updatedAt: Date;
 
-    @Prop()
-    fileUrl: string;
+  @Prop()
+  createdAt: Date;
 
-    @Prop()
-    updatedAt: Date;
+  @Prop()
+  isDeleted: boolean;
 
-    @Prop()
-    createdAt: Date;
+  @Prop()
+  deletedAt: Date;
 
-    @Prop()
-    isDeleted: boolean;
+  @Prop({ type: Object })
+  createdBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
+  @Prop({ type: Object })
+  updatedBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
 
-    @Prop()
-    deletedAt: Date;
-
-    @Prop({ type: Object })
-    createdBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string;
-    };
-    @Prop({ type: Object })
-    updatedBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string;
-    };
-
-    @Prop({ type: Object })
-    deletedBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string;
-    };
+  @Prop({ type: Object })
+  deletedBy: {
+    _id: mongoose.Schema.Types.ObjectId;
+    email: string;
+  };
 }
 
 export const ChatSchema = SchemaFactory.createForClass(Chat);

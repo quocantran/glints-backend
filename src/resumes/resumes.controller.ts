@@ -15,6 +15,7 @@ import { UpdateStatusResumeDto } from './dto/update-resume.dto';
 import { User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { FindByJobResumeDto } from './dto/findbyjob-resume.dto';
 
 @Controller('resumes')
 export class ResumesController {
@@ -46,6 +47,12 @@ export class ResumesController {
     @User() user: IUser,
   ) {
     return this.resumesService.update(id, updateResumeDto, user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('by-job')
+  findAllByJob(@Body() body: FindByJobResumeDto, @User() user: IUser) {
+    return this.resumesService.findAllByJob(body, user);
   }
 
   @UseGuards(JwtAuthGuard)

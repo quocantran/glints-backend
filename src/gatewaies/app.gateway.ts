@@ -10,6 +10,7 @@ import { Server, Socket } from 'socket.io';
 import { CompaniesService } from 'src/companies/companies.service';
 import { JobsService } from 'src/jobs/jobs.service';
 import { PaymentsService } from 'src/payments/payments.service';
+import { FindByJobResumeDto } from 'src/resumes/dto/findbyjob-resume.dto';
 import { ResumesService } from 'src/resumes/resumes.service';
 
 @WebSocketGateway({
@@ -106,18 +107,35 @@ export class AppGateway
 
   @SubscribeMessage('checkPayment')
   async handleCheckPayment(client: Socket, payload: any): Promise<void> {
-    const { code, amount } = payload;
-    const result = await this.paymentsService.checkPayment({ code, amount });
+    const { code } = payload;
+    const result = await this.paymentsService.checkPayment({
+      code,
+      amount: 2000,
+    });
 
     client.emit('checkPayment', result);
   }
 
   @SubscribeMessage('transactionSuccess')
   async handleTransactionSuccess(client: Socket, payload: any): Promise<void> {
-    const { jobId, userId } = payload;
-    await this.jobsService.addPaidUser(jobId, userId);
-    const resumes = await this.resumesService.findAllByJob(jobId);
+    const { jobId, userId, code } = payload;
+    const valid = await this.paymentsService.checkPayment({
+      code,
+      amount: 2000,
+    });
 
-    client.emit('transactionSuccess', resumes);
+    if (!valid) {
+      client.emit('transactionSuccess', {
+        message: 'Transaction failed',
+        status: 0,
+      });
+      return;
+    }
+
+    await this.jobsService.addPaidUser(jobId, userId);
+    client.emit('transactionSuccess', {
+      message: 'Transaction success',
+      status: 1,
+    });
   }
 }

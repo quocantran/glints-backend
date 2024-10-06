@@ -18,23 +18,13 @@ export class ChatsService {
   ) {}
 
   async create(createChatDto: CreateChatDto, user: IUser) {
-    if (createChatDto.type != 'text' && createChatDto.type != 'image') {
-      throw new BadRequestException('Type is invalid');
-    }
-
     if (!createChatDto.content && !createChatDto.fileUrl) {
       throw new BadRequestException('Content or fileUrl is required');
     }
 
-    if (user.name !== createChatDto.name) {
-      throw new BadRequestException('User name not found'); //
-    }
-
     const newChat = new this.chatModel({
-      name: user.name,
       content: createChatDto.content,
-      type: createChatDto.type,
-      userId: user._id,
+      user: user._id,
       fileUrl: createChatDto.fileUrl,
     });
 
@@ -56,10 +46,18 @@ export class ChatsService {
     const skip = (current - 1) * limit;
     const chats = await this.chatModel
       .find(filter)
+      .populate([
+        {
+          path: 'user',
+          select: {
+            _id: 1,
+            name: 1,
+          },
+        },
+      ])
       .skip(skip)
       .limit(limit)
-      .sort(sort as any)
-      .populate(population);
+      .sort(sort as any);
 
     return {
       meta: {
@@ -91,12 +89,12 @@ export class ChatsService {
       throw new BadRequestException('Chat not found');
     }
 
-    if (chat.userId.toString() !== (user._id as string)) {
+    if (chat.user.toString() !== user._id.toString()) {
       throw new BadRequestException(
-        'You do not have permission to delete this chat!',
+        'You do not have permission to delete this chat',
       );
     }
 
-    return this.chatModel.softDelete({ _id: id });
+    return this.chatModel.deleteOne({ _id: id });
   }
 }

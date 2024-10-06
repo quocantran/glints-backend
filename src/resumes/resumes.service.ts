@@ -1,9 +1,11 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   Logger,
   NotFoundException,
   Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateResumeDto } from './dto/create-resume.dto';
 import { UpdateStatusResumeDto } from './dto/update-resume.dto';
@@ -15,12 +17,16 @@ import aqp from 'api-query-params';
 import mongoose from 'mongoose';
 import { RolesService } from 'src/roles/roles.service';
 import { UsersService } from 'src/users/users.service';
+import { FindByJobResumeDto } from './dto/findbyjob-resume.dto';
+import { JobsService } from 'src/jobs/jobs.service';
 
 @Injectable()
 export class ResumesService {
   constructor(
     @InjectModel(Resume.name)
     readonly resumeModel: SoftDeleteModel<ResumeDocument>,
+
+    private readonly JobService: JobsService,
 
     private rolesService: RolesService,
 
@@ -105,8 +111,48 @@ export class ResumesService {
     }
   }
 
-  async findAllByJob(jobId: string) {
-    return await this.resumeModel.find({ jobId: jobId }).sort('-createdAt');
+  async findAllByJob(data: FindByJobResumeDto, user: IUser) {
+    const { jobId, current, pageSize } = data;
+
+    if (!mongoose.Types.ObjectId.isValid(jobId)) {
+      throw new BadRequestException('not found job');
+    }
+
+    const isValid = await this.JobService.findPaidUsers(jobId, user._id);
+
+    if (!isValid) {
+      throw new ForbiddenException('Bạn không có quyền truy cập!');
+    }
+
+    const limit = pageSize ? parseInt(pageSize) : 10;
+    const skip = (parseInt(current) - 1) * limit;
+    const totalRecord = (await this.resumeModel.find({ jobId: jobId })).length;
+    const totalPage = Math.ceil(totalRecord / limit);
+    const resumes = await this.resumeModel
+      .find({ jobId: jobId })
+      .populate([
+        {
+          path: 'companyId',
+          select: 'name',
+        },
+        {
+          path: 'jobId',
+          select: 'name',
+        },
+      ])
+      .skip(skip)
+      .limit(limit)
+      .sort('-createdAt');
+
+    return {
+      meta: {
+        current: current ? parseInt(current) : 1,
+        pageSize: limit,
+        pages: totalPage,
+        total: totalRecord,
+      },
+      result: resumes,
+    };
   }
 
   async findOne(id: string) {

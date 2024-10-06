@@ -51,7 +51,7 @@ export class JobsService {
 
   async findAll(qs: any) {
     try {
-      const cacheKey = JSON.stringify(qs);
+      const cacheKey = `jobs-${JSON.stringify(qs)}`;
 
       const cacheValue = (await this.cacheManager.get(cacheKey)) as string;
 
@@ -101,6 +101,10 @@ export class JobsService {
         result: jobs,
       };
 
+      await this.cacheManager.set(cacheKey, JSON.stringify(response), {
+        ttl: 60,
+      });
+
       return response;
     } catch (err) {
       throw new BadRequestException(err.message);
@@ -110,8 +114,15 @@ export class JobsService {
   async addPaidUser(jobId: string, userId: string) {
     return await this.jobModel.updateOne(
       { _id: jobId },
-      { $push: { paidUsers: userId } },
+      { $addToSet: { paidUsers: userId } },
     );
+  }
+
+  async findPaidUsers(jobId: string, userId: string) {
+    return await this.jobModel.findOne({
+      _id: jobId,
+      paidUsers: userId,
+    });
   }
 
   async findJobsBySkillName(names: string[]) {
@@ -125,14 +136,6 @@ export class JobsService {
   async findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new NotFoundException('Job not found');
-    }
-
-    const cacheKey = `job_${id}`;
-
-    const cacheValue = (await this.cacheManager.get(cacheKey)) as string;
-
-    if (cacheValue) {
-      return JSON.parse(cacheValue);
     }
 
     const job = await this.jobModel

@@ -6,12 +6,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RolesService } from 'src/roles/roles.service';
 import { RolesModule } from 'src/roles/roles.module';
 import { UsersModule } from 'src/users/users.module';
+import { JobsModule } from 'src/jobs/jobs.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Resume.name, schema: ResumeSchema }]),
     RolesModule,
     UsersModule,
+    JobsModule,
   ],
   controllers: [ResumesController],
   providers: [ResumesService],

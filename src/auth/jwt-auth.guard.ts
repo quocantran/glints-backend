@@ -47,6 +47,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       '/api/v1/companies/unfollow',
       '/api/v1/comments',
       '/api/v1/comments/:id',
+      '/api/v1/resumes/by-job',
     ];
     if (err || !user) {
       throw err || new UnauthorizedException('Token không hợp lệ!');

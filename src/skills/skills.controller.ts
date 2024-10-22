@@ -1,14 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { SkillsService } from './skills.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
 import { IUser } from 'src/users/users.interface';
 import { User } from 'src/decorator/customize';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('skills')
+@ApiTags('Skills Controller')
 export class SkillsController {
-  constructor(private readonly skillsService: SkillsService) { }
+  constructor(private readonly skillsService: SkillsService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -28,7 +40,11 @@ export class SkillsController {
 
   @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSkillDto: UpdateSkillDto, @User() user: IUser) {
+  update(
+    @Param('id') id: string,
+    @Body() updateSkillDto: UpdateSkillDto,
+    @User() user: IUser,
+  ) {
     return this.skillsService.update(id, updateSkillDto, user);
   }
 

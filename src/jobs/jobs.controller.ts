@@ -16,8 +16,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { SearchJobDto } from './dto/search-job.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('jobs')
+@ApiTags('Jobs Controller')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 

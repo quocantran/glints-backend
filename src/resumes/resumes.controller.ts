@@ -16,8 +16,10 @@ import { User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FindByJobResumeDto } from './dto/findbyjob-resume.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('resumes')
+@ApiTags('Resumes Controller')
 export class ResumesController {
   constructor(private readonly resumesService: ResumesService) {}
 

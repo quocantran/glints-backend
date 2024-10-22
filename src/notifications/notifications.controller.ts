@@ -20,8 +20,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { GetNotificationDto } from './dto/get-notification.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('notifications')
+@ApiTags('Notifications Controller')
 export class NotificationsController {
   constructor(private readonly notificationsService: NotificationsService) {}
 

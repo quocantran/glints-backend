@@ -25,8 +25,10 @@ import {
 } from '@nestjs/throttler';
 import { AuthGuard } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Auth Controller')
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
@@ -37,6 +39,20 @@ export class AuthController {
   @Public()
   @UseGuards(LocalAuthGuard)
   @UseGuards(ThrottlerGuard)
+  @ApiOperation({ summary: 'Login' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        username: { type: 'string' },
+        password: { type: 'string' },
+      },
+      example: {
+        username: 'test@gmail.com',
+        password: '123456',
+      },
+    },
+  })
   @Post('/login')
   handleLogin(
     @Req() req: Request & { user: IUser },
@@ -45,11 +61,14 @@ export class AuthController {
     return this.authService.login(req.user, res);
   }
   @Public()
+  @ApiOperation({ summary: 'Register' })
   @Post('/register')
   handleRegister(@Body() createUserDto: CreateUserDto) {
     return this.authService.register(createUserDto);
   }
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'get account user' })
+  @ApiBearerAuth()
   @Get('/account')
   async handleAccount(@User() user: IUser) {
     return await this.authService.handleAccount(user);
@@ -75,6 +94,10 @@ export class AuthController {
     );
   }
 
+  @ApiOperation({
+    summary: 'Refresh token',
+    description: 'Refresh token, need refresh token in cookies',
+  })
   @Get('/refresh')
   handleRefresh(
     @Req() req: Request,
@@ -89,6 +112,8 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Logout', description: 'Logout user' })
+  @ApiBearerAuth()
   @Post('/logout')
   handleLogout(@Res({ passthrough: true }) res: Response, @User() user: IUser) {
     return this.authService.logout(user, res);

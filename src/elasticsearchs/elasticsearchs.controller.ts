@@ -10,7 +10,9 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Elasticsearch')
 @Controller('elasticsearchs')
 export class ElasticsearchsController {
   constructor(

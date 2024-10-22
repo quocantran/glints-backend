@@ -11,6 +11,7 @@ import helmet from 'helmet';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import * as amqp from 'amqplib';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrapHttpServer() {
   const app = await NestFactory.create(AppModule);
@@ -29,7 +30,7 @@ async function bootstrapHttpServer() {
   app.use(cookieParser());
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: ['1', '2'],
+    defaultVersion: ['1'],
   });
 
   app.use(helmet());
@@ -41,6 +42,24 @@ async function bootstrapHttpServer() {
     origin: [configService.get<string>('URL_FRONTEND')],
     credentials: true,
   });
+
+  //swagger
+  const config = new DocumentBuilder()
+    .setTitle('API Documentation')
+    .setDescription('The API description')
+    .setVersion('1.0.0')
+    .addTag('api')
+    .addBearerAuth()
+    .addServer('http://localhost:8000')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document, {
+    swaggerOptions: {
+      filter: true,
+      showRequestDuration: true,
+    },
+  });
+
   const PORT = configService.get<string>('PORT');
   await app.listen(PORT);
 }

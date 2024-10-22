@@ -8,46 +8,63 @@ import mongoose, { mongo } from 'mongoose';
 
 @Injectable()
 export class SubscribersService {
-
-
-  constructor(@InjectModel(Subscriber.name)
-  private readonly subscriberModel: SoftDeleteModel<SubscriberDocument>
-
-  ) { }
+  constructor(
+    @InjectModel(Subscriber.name)
+    private readonly subscriberModel: SoftDeleteModel<SubscriberDocument>,
+  ) {}
 
   async create(createSubscriberDto: CreateSubscriberDto) {
-
     if (createSubscriberDto.skills.length === 0) {
-      throw new BadRequestException('Skills is required');
+      const usr = await this.subscriberModel.findOne({
+        email: createSubscriberDto.email,
+      });
+      if (usr) {
+        await this.subscriberModel.updateOne(
+          { email: createSubscriberDto.email },
+          { skills: [] },
+        );
+        return 'Cập nhật skills thành công';
+      } else {
+        throw new BadRequestException('Skills is required');
+      }
     }
 
-    createSubscriberDto.skills.forEach(skill => {
+    createSubscriberDto.skills.forEach((skill) => {
       if (!mongoose.Types.ObjectId.isValid(skill)) {
         throw new BadRequestException('Skill not found');
       }
-    })
+    });
 
-    const isExist = await this.subscriberModel.findOne({ email: createSubscriberDto.email });
+    const isExist = await this.subscriberModel.findOne({
+      email: createSubscriberDto.email,
+    });
     if (isExist) {
-      throw new BadRequestException('Subscriber already exist');
+      await this.subscriberModel.updateOne(
+        { email: createSubscriberDto.email },
+        { skills: createSubscriberDto.skills },
+      );
+      return 'Cập nhật skills thành công';
     }
 
     const result = await this.subscriberModel.create(createSubscriberDto);
     return result;
-
   }
 
   async update(id: string, updateSubscriberDto: UpdateSubscriberDto) {
-    updateSubscriberDto.skills.forEach(skill => {
+    updateSubscriberDto.skills.forEach((skill) => {
       if (!mongoose.Types.ObjectId.isValid(skill)) {
         throw new BadRequestException('Skill not found');
       }
-    })
+    });
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Subscriber not found');
     }
-    const result = await this.subscriberModel.findByIdAndUpdate(id, updateSubscriberDto, { new: true });
+    const result = await this.subscriberModel.findByIdAndUpdate(
+      id,
+      updateSubscriberDto,
+      { new: true },
+    );
     return result;
   }
 
@@ -56,10 +73,23 @@ export class SubscribersService {
       path: 'skills',
       select: {
         _id: 0,
-        name: 1
-      }
+        name: 1,
+      },
     });
     return subscribers;
+  }
+
+  async getSuscriberByEmail(email: string) {
+    const subscriber = (await this.subscriberModel.findOne({ email })).populate(
+      {
+        path: 'skills',
+        select: {
+          _id: 1,
+          name: 1,
+        },
+      },
+    );
+    return subscriber;
   }
 
   remove(id: string) {

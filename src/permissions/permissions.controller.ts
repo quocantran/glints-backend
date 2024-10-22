@@ -15,8 +15,10 @@ import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('permissions')
+@ApiTags('Permissions Controller')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) {}
 

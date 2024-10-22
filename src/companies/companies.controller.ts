@@ -18,8 +18,10 @@ import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUser } from 'src/users/users.interface';
 import { User } from 'src/decorator/customize';
 import { FollowCompanyDto } from './dto/follow-company.dto';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('companies')
+@ApiTags('Companies Controller')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) {}
 

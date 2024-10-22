@@ -10,14 +10,15 @@ import mongoose from 'mongoose';
 
 @Injectable()
 export class SkillsService {
-
-  constructor(@InjectModel(Skill.name)
-
-  private readonly skillModel: SoftDeleteModel<SkillDocument>
-  ) { }
+  constructor(
+    @InjectModel(Skill.name)
+    private readonly skillModel: SoftDeleteModel<SkillDocument>,
+  ) {}
 
   async create(createSkillDto: CreateSkillDto, user: IUser) {
-    const isExist = await this.skillModel.findOne({ name: createSkillDto.name });
+    const isExist = await this.skillModel.findOne({
+      name: createSkillDto.name,
+    });
     if (isExist) {
       throw new BadRequestException('Skill already exist');
     }
@@ -25,10 +26,9 @@ export class SkillsService {
 
     const result = this.skillModel.create({
       ...createSkillDto,
-      createdBy: user.email
+      createdBy: user.email,
     });
     return result;
-
   }
 
   async findAll(qs: any) {
@@ -63,6 +63,9 @@ export class SkillsService {
   }
 
   findOne(id: string) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new BadRequestException('Skill not found');
+    }
     const skill = this.skillModel.findById(id);
     if (!skill) {
       throw new BadRequestException('Skill not found');
@@ -71,7 +74,6 @@ export class SkillsService {
   }
 
   async update(id: string, updateSkillDto: UpdateSkillDto, user: IUser) {
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException('Skill not found');
     }
@@ -85,9 +87,9 @@ export class SkillsService {
       ...updateSkillDto,
       updatedBy: {
         _id: user._id,
-        email: user.email
-      }
-    }
+        email: user.email,
+      },
+    };
     return await this.skillModel.updateOne({ _id: id }, newJob);
   }
 
